@@ -1,0 +1,87 @@
+@font-face {
+    font-family: 'Cinzel';
+    src: url('fonts/Cinzel Black.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Trajan-pro';
+    src: url('fonts/Trajan Pro Regular.ttf') format('truetype')
+}
+
+html, body {
+    background-color: beige;
+    margin: 0; 
+    height: 100%;
+    width: 100%;
+    padding: 0;
+}
+
+header {
+    display: block;
+    background: #3EBB75;
+    width: 100%;
+    height: 5%;
+    box-sizing: border-box;
+}
+
+h1 {
+    font-family: 'Cinzel', Arial, Helvetica, sans-serif;
+    color: #271616;
+}
+
+h2 {
+    font-family: 'Cinzel', Arial, Helvetica, sans-serif;
+    color: #271616;
+}
+
+h3 {
+    font-family: 'Trajan-pro', Arial, Helvetica, sans-serif;
+    color: #8B4513;
+    text-align: center;
+}
+
+p {
+    font-family: 'Trajan-pro', Arial, Helvetica, sans-serif;
+    color: #8B4513;
+}
+
+li {
+    font-family: 'Trajan-pro', Arial, Helvetica, sans-serif;
+    color: #8B4513;
+}
+
+.hero {
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+    height: 40%;
+    align-items: center;
+}
+
+.hero-images {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.hero-image-sections, p {
+    text-align: center;
+}
+
+#shrek-icon, #inside-church, #outside-church {
+    height: 200px;
+    width: 200px;
+    margin: 0px 20px;
+}
+
+.mission-statement {
+    display: flex;
+    flex-direction: column;
+    width: 40%;
+    height: 70%;
+    position: absolute;
+    right: 0;
+    top: 70px;
+    text-align: center;
+}
+

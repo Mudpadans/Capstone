@@ -1,0 +1,27 @@
+@font-face {
+    font-family: 'Cinzel';
+    src: url('Cinzel Black.ttf') format('truetype');
+
+    font-family: 'Trajan-pro';
+    src: url('Trajan Pro Regular.ttf') format('truetype')
+}
+
+html, body {
+    background-color: beige;
+    margin: 0; 
+    height: 100%;
+    width: 100%;
+    padding: 0;
+}
+
+header {
+    display: block;
+    background: #3EBB75;
+    width: 100%;
+    height: 5%;
+    box-sizing: border-box;
+}
+
+h1 {
+    font-family: 'Cinzel', Arial, Helvetica, sans-serif;
+}
