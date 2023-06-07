@@ -1,27 +1,91 @@
 @font-face {
     font-family: 'Cinzel';
-    src: url('Cinzel Black.ttf') format('truetype');
+    src: url('fonts/Cinzel Black.ttf') format('truetype');
+}
 
+@font-face {
     font-family: 'Trajan-pro';
-    src: url('Trajan Pro Regular.ttf') format('truetype')
+    src: url('fonts/Trajan Pro Regular.ttf') format('truetype')
+}
+body::before, body::after {
+    content: '';
+    display: none;
 }
 
 html, body {
+    position: relative;
     background-color: beige;
     margin: 0; 
-    height: 100%;
+    height: 110vh;
     width: 100%;
     padding: 0;
 }
 
 header {
-    display: block;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     background: #3EBB75;
     width: 100%;
     height: 5%;
     box-sizing: border-box;
 }
 
-h1 {
+.header-links {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.header-links h2 {
+    font-size: 15px;
+    margin-left: 20px;
+}
+
+h1, h2 {
     font-family: 'Cinzel', Arial, Helvetica, sans-serif;
+    color: #271616;
+}
+
+h3 {
+    font-family: 'Trajan-pro', Arial, Helvetica, sans-serif;
+    color: #8B4513;
+    text-align: center;
+}
+
+p, li {
+    font-family: 'Trajan-pro', Arial, Helvetica, sans-serif;
+    color: #8B4513;
+}
+
+.upper-section {
+    display: flex;
+    flex-direction: row;
+}
+
+footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: left;
+    background: #3EBB75;
+    width: 100%;
+    height: 5%;
+    box-sizing: border-box;
+    bottom: 0;
+}
+
+.contact-us {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.contact-us h2 {
+    font-size: 15px;
+    margin-left: 20px;
+}
+
+.contact-us p {
+    font-size: 15px;
+    margin-left: 20px;
+    font-family: 'Cinzel', Arial, Helvetica, sans-serif;
+    color: #271616;
 }
