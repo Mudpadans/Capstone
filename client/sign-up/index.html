@@ -11,27 +11,92 @@
     <header>
         <h1>Temple of Shrek</h1>
         <div class="header-links">
-            <h2>Home</h2>
+            <h2><a href="/client/landing/index.html">Home</a></h2>
             <h2><a href="/client/event/index.html">Events</a></h2>
             <h2><a href="/client/forum/index.html">Forum</a></h2>
-            <h2><a href="/client/sign-up/index.html">Signup/Login</a></h2>
+            <h2>Signup/Login</h2>
+            <h2><a id="logout-link" href="/client/landing/index.html">Logout</a></h2>
         </div>
     </header>
-    <div class="upper-section">
-        <section class="membership-info">
-            <h2>Membership Information</h2>
-        </section>
+        <div class="left-section">
+            <section class="membership-info">
+                <h2>Membership Information</h2>
+                    <ul>
+                        <li>Free housing</li>
+                        <li>Free food</li>
+                        <li>A community of love and camaraderie</li>
+                        <li>Spiritual Growth through the grace of Shrek</li>
+                        <li>A tranquil location to provide appreciated service</li>
+                        <li>Opportunities to access esoteric knowledge</li>
+                    </ul>
+            </section>
+
+            <section class="signup-section">
+                <h2>Sign-up form</h2>
+                    <form id="signup-form">
+                        <div class="form-column">
+                            <label for="fname">First name:</label><br>
+                            <input type="text" id="fname" name="fname" required/><br>
+            
+                            <label for="lname">Last name:</label><br>
+                            <input type="text" id="lname" name="lname" required/><br>
+            
+                            <label for="dob">Date of birth:</label><br>
+                            <input type="date" id="dob" name="dob" required/><br>
+            
+                            <label for="address">Home address:</label><br>
+                            <input type="text" id="address" name="address" required/>
+                        </div>
+                            
+                        <div class="form-column">
+                            <label for="dj">Date joined:</label><br>
+                            <input type="date" id="dj" name="address" required/><br>
+            
+                            <label for="email">Email:</label><br>
+                            <input type="email" id="signup-email" name="email" required/><br>
+            
+                            <label for="#number">Date joined:</label><br>
+                            <input type="text" id="#number" name="#number" required/><br>
+            
+                            <button for="signup-btn" id="signup-btn">Signup</button>
+                        </div>
+                    </form>
+            </section>
+
+            <section class="login-section">
+                <h2>Already a member?</h2>
+                    <form id="login-form">
+                        <label for="email">Email:</label><br>
+                        <input type="text" id="login-email" name="email" required/>
+
+                        <button for="login-btn" id="login-btn">Login</button>
+                    </form>
+            </section>
+        </div>
 
         <section class="member-testimonials">
             <h2>Membership Testimonials</h2>
+                <div class="member-blocks">
+                    <div class="doris">
+                        <img id="doris-image" src="images/https-::pbs.twimg.com:media:C0E5TduUkAA80jL.jpg_large"/>
+                        <h3>Doris</h3>
+                            <p>"People didn't take me seriously before, everyone called me 'the ugly stepsister' and I wasn't able to find meaningful work. But through the acceptance of Shrek, I found meaning in my life through serving him and others who felt the same as me."</p>
+                    </div>
+
+                    <div class="gingerbread-man">
+                        <img id="gingerbread-man-image" src="images/http-::www.enchanted-rose.org:humbug:christmas:shrekgingerbreadman_large.jpg"/>
+                        <h3>Gingy</h3>
+                            <p>"They used to see me as nothing more than a sweet treat, an object of indulgence. My life was full of fear, always worried about the next person who might try to bite off a piece of me. But after joining this community, dedicated to Shrek, I found safety and respect."</p>
+                    </div>
+
+                    <div class="pinocchio">
+                        <img id="pinocchio-image" src="images/https-::pbs.twimg.com:profile_images:697846354748399616:Vp9P7RaS.png"/>
+                        <h3>Pinocchio</h3>
+                            <p>"In the past, I struggled with identity and truth, constantly being punished for each small lie, my nose growing with each fib. People made fun of me, viewing me as a wooden toy instead of a real boy. Yet, in Shrek's community, I found acceptance and understanding."</p>
+                    </div>
+                </div>
         </section>
-    </div>
-    <br>
-    </section>
-
-    <section class="signup-form">
-
-    </section>
+    
 
     <footer>
         <div class="contact-us">
