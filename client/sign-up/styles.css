@@ -71,10 +71,13 @@ p, li {
 }
 
 #signup-form {
-    display: flex;
-    justify-content: space-between;
     font-family: 'Trajan-pro', Arial, Helvetica, sans-serif;
     color: #8B4513;
+}
+
+#form-fields {
+    display: flex;
+    justify-content: space-between;
 }
 
 .form-column {
@@ -86,6 +89,8 @@ p, li {
     margin-top: 10px;
     height: 30px;
     width: 90px;
+    display: block;
+    margin: 5px auto;
 }
 
 .login-section {

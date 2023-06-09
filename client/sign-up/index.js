@@ -1,4 +1,3 @@
-const axios = require('axios');
 const signupForm = document.getElementById("signup-form")
 const loginForm = document.getElementById("login-form")
 const eventLink = document.getElementById("event-link");
@@ -13,8 +12,7 @@ signupForm.addEventListener('submit', function(event) {
         lname: document.getElementById('lname').value,
         dob: document.getElementById('dob').value,
         address: document.getElementById('address').value,
-        dj: document.getElementById('dj').value,
-        email: document.getElementById('email').value,
+        email: document.getElementById('signup-email').value,
         number: document.getElementById('number').value
     }
 
@@ -23,6 +21,8 @@ signupForm.addEventListener('submit', function(event) {
     }).catch(err => console.log(err))
 
     isLoggedIn = true;
+
+    localStorage.setItem('isLoggedIn', 'true');
 })
 
 loginForm.addEventListener('submit', function(event) {
@@ -34,23 +34,33 @@ loginForm.addEventListener('submit', function(event) {
         .then(res => {
             if (res.data.status === "Authenticated") {
                 isLoggedIn = true;
-                window.location.href = "/client/sign-up/index.html"
+                window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html"
             } else {
                 alert('Invalid Email')
             }
     }).catch(err => console.log(err))
+
+    localStorage.setItem('isLoggedIn', 'true');
 })
 
 eventLink.addEventListener('click', (event) => {
-    if (!isLoggedIn) {
+    if (localStorage.getItem('isLoggedIn') !== 'true') {
         event.preventDefault();
-        window.location.href = "/client/sign-up.index.html";
+        window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
     }
 });
 
 forumLink.addEventListener('click', (event) => {
-    if (!isLoggedIn) {
+    if (localStorage.getItem('isLoggedIn') !== 'true') {
         event.preventDefault();
-        window.location.href = "/client/sign-up/index.html";
+        window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
+    }
+})
+
+logoutLink.addEventListener('click', (event) => {
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+        event.preventDefault();
+        localStorage.removeItem('isLoggedIn');
+        window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/landing/index.html";
     }
 })

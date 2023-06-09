@@ -2,7 +2,7 @@ require('dotenv').config()
 const {CONNECTION_STRING} = process.env
 const Sequelize = require('sequelize')
 
-const sequelize = new Sequelize(process.env.CONNECTION_STRING, {
+const sequelize = new Sequelize(CONNECTION_STRING, {
     dialect: 'postgres',
     dialectOptions: {
       ssl: {
@@ -15,7 +15,6 @@ const sequelize = new Sequelize(process.env.CONNECTION_STRING, {
 module.exports = {
   seed: (req, res) => {
   sequelize.query(`
-        drop table if exists members;
         drop table if exists events;
         drop table if exists discussions;
         drop table if exists comments;
@@ -29,8 +28,8 @@ module.exports = {
 	        date_joined date,
 	        role varchar(20),
 	        membership_status boolean,
-	        email varchar(30),
-	        phone_number numeric
+	        email text,
+	        phone_number varchar(20)
         );
 
         create table events (
@@ -38,46 +37,47 @@ module.exports = {
           event_name varchar(30),
           event_date date,
           event_creation_date date,
+          host_id int references members(member_id),
           location varchar(50),
-          host_id int references members.member_id,
           member_guests int null,
           maximum_capacity int,
           status varchar(20)
         );
 
-        create table discussion (
+        create table discussions (
           discussion_id serial primary key,
-	        discussion_name varchar(30),
-	        discussion_text text,
-	        author_id int references members.member_id,
-	        date_posted date,
-	        is_active boolean
-        );
-
-        create table comments (
-          comment_id serial primary key,
-          author_id int references members.member_id,
-          discussion_id int references discussions.discussion_id,
-          comment text,
+          discussion_name varchar(30),
+          discussion_text text,
+          author_id int references members(member_id),
           date_posted date,
           is_active boolean
-        );
+          );
+
+          create table comments (
+             comment_id serial primary key,
+             author_id int references members(member_id),
+             discussion_id int references discussions(discussion_id),
+             comment text,
+             date_posted date,
+             is_active boolean
+             );
 
         insert into members (first_name, last_name, date_of_birth, address, date_joined, role, membership_status, email, phone_number)
         values ('Doris', 'the Ugly Stepsister', '1959-05-23', '3284, Evil Lane, Far Far Away', '2004-05-19','Kitchen Manager', true, 'UglyStepsisterIsMe@yahoo.com', '(746) 485-4846'),
         ('Gingy', NULL, '1980-02-28', NULL, '2001-05-18', 'Online Advocate', true, 'DeliciousCookie@AOL.com', 
         '(395) 724-2986'),
-        ('Pinocchio', NULL, '1886-10-30', NULL, 2001-05-18', 'Carpenter', true, 'DisIzAcktualyMiEmayl4Rel@YourNigerianPrice.org', '(275) 824-1084'); 
+        ('Pinocchio', NULL, '1886-10-30', NULL, '2001-05-18', 'Carpenter', true, 'bigliar@aol.com', '(275) 824-1084'); 
       `).then(() => {
           console.log('DB seeded!')
           res.sendStatus(200)
       }).catch(err => console.log('error seeding DB', err))
       },
-
+      
       createMember: (req, res) => {
-        let {fname, lname, dob, address, dj, email, number} = req.body;
+        console.log(req.body)
+        const {fname, lname, dob, address, email, number} = req.body;
 
-        let date_joined = new Date(dj).toISOString().split('T')[0];
+        let date_joined = new Date().toISOString().split('T')[0];
         let membership_status = true;
         let role = 'New_Member'
         
@@ -97,11 +97,11 @@ module.exports = {
         })
         .then(() => {
           console.log('New member created!')
-          res.sendStatus(200).json(result[0])
+          res.status(200).json({message: "New member created"})
         })
         .catch(err => {
           console.log('Error creating new member', err)
-          res.sendStatus(500)
+          res.status(500).json({error: "Error creating new member"})
         })
       },
 
@@ -125,3 +125,10 @@ module.exports = {
         })
       }
   }
+
+
+  // 
+
+  // 
+
+  // 

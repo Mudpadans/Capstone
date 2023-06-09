@@ -5,23 +5,23 @@ const forumLink = document.getElementById("forum-link");
 const logoutLink = document.getElementById("logout-link")
 
 eventLink.addEventListener('click', (event) => {
-    if (!isLoggedIn) {
+    if (localStorage.getItem('isLoggedIn') !== 'true') {
         event.preventDefault();
-        window.location.href = "/client/sign-up/index.html";
+        window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
     }
 });
 
 forumLink.addEventListener('click', (event) => {
-    if (!isLoggedIn) {
+    if (localStorage.getItem('isLoggedIn') !== 'true') {
         event.preventDefault();
-        window.location.href = "/client/sign-up/index.html";
+        window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
     }
 })
 
 logoutLink.addEventListener('click', (event) => {
-    if (isLoggedIn) {
+    if (localStorage.getItem('isLoggedIn') === 'true') {
         event.preventDefault();
-        isLoggedIn = false;
-        window.location.href = "/client/landing/index.html";
+        localStorage.removeItem('isLoggedIn');
+        window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/landing/index.html";
     }
 })

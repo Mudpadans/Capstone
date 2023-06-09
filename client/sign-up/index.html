@@ -11,11 +11,11 @@
     <header>
         <h1>Temple of Shrek</h1>
         <div class="header-links">
-            <h2><a href="/client/landing/index.html">Home</a></h2>
-            <h2><a href="/client/event/index.html">Events</a></h2>
-            <h2><a href="/client/forum/index.html">Forum</a></h2>
+            <h2><a href="/Volumes/GIGAFILES/Devmountain/Capstone/client/landing/index.html">Home</a></h2>
+            <h2><a id="event-link" href="/Volumes/GIGAFILES/Devmountain/Capstone/client/event/index.html">Events</a></h2>
+            <h2><a id="forum-link" href="/Volumes/GIGAFILES/Devmountain/Capstone/client/forum/index.html">Forum</a></h2>
             <h2>Signup/Login</h2>
-            <h2><a id="logout-link" href="/client/landing/index.html">Logout</a></h2>
+            <h2><a id="logout-link" href="/Volumes/GIGAFILES/Devmountain/Capstone/client/landing/index.html">Logout</a></h2>
         </div>
     </header>
         <div class="left-section">
@@ -34,39 +34,37 @@
             <section class="signup-section">
                 <h2>Sign-up form</h2>
                     <form id="signup-form">
-                        <div class="form-column">
-                            <label for="fname">First name:</label><br>
-                            <input type="text" id="fname" name="fname" required/><br>
-            
-                            <label for="lname">Last name:</label><br>
-                            <input type="text" id="lname" name="lname"/><br>
-            
-                            <label for="dob">Date of birth:</label><br>
-                            <input type="date" id="dob" name="dob" required/><br>
-            
-                            <label for="address">Home address:</label><br>
-                            <input type="text" id="address" name="address"/>
+                        <div id="form-fields">
+                            <div class="form-column">
+                                <label for="fname">First name:</label><br>
+                                <input type="text" id="fname" name="fname" required/><br>
+                
+                                <label for="lname">Last name:</label><br>
+                                <input type="text" id="lname" name="lname"/><br>
+                
+                                <label for="dob">Date of birth:</label><br>
+                                <input type="date" id="dob" name="dob" required/><br>
+                            </div>
+                                
+                            <div class="form-column">
+                                <label for="address">Home address:</label><br>
+                                <input type="text" id="address" name="address"/>
+                
+                                <label for="email">Email:</label><br>
+                                <input type="email" id="signup-email" name="email" required/><br>
+                
+                                <label for="number">Phone Number:</label><br>
+                                <input type="text" id="number" name="number" required/><br>
+                            </div>
                         </div>
-                            
-                        <div class="form-column">
-                            <label for="dj">Date joined:</label><br>
-                            <input type="date" id="dj" name="address" required/><br>
-            
-                            <label for="email">Email:</label><br>
-                            <input type="email" id="signup-email" name="email" required/><br>
-            
-                            <label for="number">Phone Number:</label><br>
-                            <input type="text" id="number" name="number" required/><br>
-            
-                            <button for="signup-btn" id="signup-btn">Signup</button>
-                        </div>
+                        <button for="signup-btn" id="signup-btn">Signup</button>
                     </form>
             </section>
 
             <section class="login-section">
                 <h2>Already a member?</h2>
                     <form id="login-form">
-                        <label for="email">Email:</label><br>
+                        <label for="email">Email:</label>
                         <input type="text" id="login-email" name="email" required/>
 
                         <button for="login-btn" id="login-btn">Login</button>
@@ -105,7 +103,7 @@
                 <p>telephone: (+690) 7153</p>
         </div>
     </footer>
-    <script src="/node_modules/axios/dist/axios.min.js"></script>
+    <script src="/Volumes/GIGAFILES/Devmountain/Capstone/node_modules/axios/dist/axios.min.js"></script>
     <script src="index.js"></script>
 </body>
 </html>
