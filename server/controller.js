@@ -63,9 +63,10 @@ module.exports = {
           is_active boolean
         );
 
-        insert into members (first_name, last_name, date_of_birth, address, date_joined, role, membership_status, email, phone_number),
+        insert into members (first_name, last_name, date_of_birth, address, date_joined, role, membership_status, email, phone_number)
         values ('Doris', 'the Ugly Stepsister', '1959-05-23', '3284, Evil Lane, Far Far Away', '2004-05-19','Kitchen Manager', true, 'UglyStepsisterIsMe@yahoo.com', '(746) 485-4846'),
-        ('Gingy', NULL, '1980-02-28', NULL, '2001-05-18', 'Online Advocate', true, 'DeliciousCookie@AOL.com', '(395) 724-2986'),
+        ('Gingy', NULL, '1980-02-28', NULL, '2001-05-18', 'Online Advocate', true, 'DeliciousCookie@AOL.com', 
+        '(395) 724-2986'),
         ('Pinocchio', NULL, '1886-10-30', NULL, 2001-05-18', 'Carpenter', true, 'DisIzAcktualyMiEmayl4Rel@YourNigerianPrice.org', '(275) 824-1084'); 
       `).then(() => {
           console.log('DB seeded!')
