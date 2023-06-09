@@ -11,10 +11,11 @@ const sequelize = new Sequelize(process.env.CONNECTION_STRING, {
   }
 })
 
+
 module.exports = {
   seed: (req, res) => {
-      sequelize.query(`
-        drop table if exists users;
+  sequelize.query(`
+        drop table if exists members;
         drop table if exists events;
         drop table if exists discussions;
         drop table if exists comments;
@@ -29,7 +30,7 @@ module.exports = {
 	        role varchar(20),
 	        membership_status boolean,
 	        email varchar(30),
-	        phone_number varchar(20)
+	        phone_number numeric
         );
 
         create table events (
@@ -38,7 +39,7 @@ module.exports = {
           event_date date,
           event_creation_date date,
           location varchar(50),
-          host_id int *> members.member_id,
+          host_id int references members.member_id,
           member_guests int null,
           maximum_capacity int,
           status varchar(20)
@@ -48,15 +49,15 @@ module.exports = {
           discussion_id serial primary key,
 	        discussion_name varchar(30),
 	        discussion_text text,
-	        author_id int *> members.member_id,
+	        author_id int references members.member_id,
 	        date_posted date,
 	        is_active boolean
         );
 
         create table comments (
           comment_id serial primary key,
-          author_id int *> members.member_id,
-          discussion_id int *> discussions.discussion_id,
+          author_id int references members.member_id,
+          discussion_id int references discussions.discussion_id,
           comment text,
           date_posted date,
           is_active boolean
@@ -70,5 +71,56 @@ module.exports = {
           console.log('DB seeded!')
           res.sendStatus(200)
       }).catch(err => console.log('error seeding DB', err))
+      },
+
+      createMember: (req, res) => {
+        let {fname, lname, dob, address, dj, email, number} = req.body;
+
+        let date_joined = new Date(dj).toISOString().split('T')[0];
+        let membership_status = true;
+        let role = 'New_Member'
+        
+        sequelize.query(`INSERT INTO members (first_name, last_name, date_of_birth, address, date_joined, role, membership_status, email, phone_number)
+        VALUES (:first_name, :last_name, :date_of_birth, :address, :date_joined, :role, :membership_status, :email, :phone_number)`, {
+          replacements: {
+            first_name: fname,
+            last_name: lname,
+            date_of_birth: dob,
+            address: address,
+            date_joined: date_joined,
+            role: role,
+            membership_status: membership_status,
+            email: email,
+            phone_number: number
+,          }
+        })
+        .then(() => {
+          console.log('New member created!')
+          res.sendStatus(200).json(result[0])
+        })
+        .catch(err => {
+          console.log('Error creating new member', err)
+          res.sendStatus(500)
+        })
+      },
+
+      authenticateMember: (req, res) => {
+        let { email } = req.body;
+
+        sequelize.query("SELECT * FROM members WHERE email = :email", {
+          replacements: { email },
+          type: sequelize.QueryTypes.SELECT,
+        })
+        .then((data) => {
+          if (data.length > 0) {
+            res.json({status: "Authenticated"})
+          } else {
+            res.json({status: "Email not found"})
+          }
+        })
+        .catch((err) => {
+          console.log("Error authenticating user", err)
+          res.sendStatus(500)
+        })
       }
   }
