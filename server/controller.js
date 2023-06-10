@@ -114,6 +114,7 @@ module.exports = {
         })
         .then((data) => {
           if (data.length > 0) {
+            req.session.isLoggedIn = true;
             res.json({status: "Authenticated"})
           } else {
             res.json({status: "Email not found"})
@@ -123,6 +124,19 @@ module.exports = {
           console.log("Error authenticating user", err)
           res.sendStatus(500)
         })
+      },
+
+      logout: (req, res) => {
+        req.session.isLoggedIn = false;
+        res.json({status: "Logged out"})
+      },
+
+      checkAuthentication: (req, res, next) => {
+        if (req.session && req.session.isLoggedIn) {
+          next();
+        } else {
+          res.status(401).json({status: "Not authenticated"})
+        }
       }
   }
 
