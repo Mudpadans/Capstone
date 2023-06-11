@@ -17,9 +17,15 @@ html, body {
     position: relative;
     background-color: beige;
     margin: 0; 
-    height: 110vh;
+    min-height: 100vh;
     width: 100%;
     padding: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 header {
@@ -58,6 +64,10 @@ p, li {
     color: #8B4513;
 }
 
+.event-calendar {
+    flex-grow: 1;
+}
+
 footer {
     display: flex;
     justify-content: space-between;
@@ -66,7 +76,6 @@ footer {
     width: 100%;
     height: 5%;
     box-sizing: border-box;
-    bottom: 0;
 }
 
 .contact-us {

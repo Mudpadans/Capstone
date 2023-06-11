@@ -15,10 +15,11 @@ const sequelize = new Sequelize(CONNECTION_STRING, {
 module.exports = {
   seed: (req, res) => {
   sequelize.query(`
-        drop table if exists events;
-        drop table if exists discussions;
-        drop table if exists comments;
-
+        drop table if exists comments CASCADE;
+        drop table if exists discussions CASCADE;
+        drop table if exists events CASCADE;
+        drop table if exists members CASCADE;
+        
         create table members (
           member_id serial primary key,
           first_name varchar(20),
@@ -34,8 +35,8 @@ module.exports = {
 
         create table events (
           event_id serial primary key,
-          event_name varchar(30),
-          event_date date,
+          event_name varchar(50),
+          event_date date null,
           event_creation_date date,
           host_id int references members(member_id),
           location varchar(50),
@@ -53,20 +54,24 @@ module.exports = {
           is_active boolean
           );
 
-          create table comments (
-             comment_id serial primary key,
-             author_id int references members(member_id),
-             discussion_id int references discussions(discussion_id),
-             comment text,
-             date_posted date,
-             is_active boolean
-             );
+        create table comments (
+          comment_id serial primary key,
+          author_id int references members(member_id),
+          discussion_id int references discussions(discussion_id),
+          comment text,
+          date_posted date,
+          is_active boolean
+          );
 
         insert into members (first_name, last_name, date_of_birth, address, date_joined, role, membership_status, email, phone_number)
         values ('Doris', 'the Ugly Stepsister', '1959-05-23', '3284, Evil Lane, Far Far Away', '2004-05-19','Kitchen Manager', true, 'UglyStepsisterIsMe@yahoo.com', '(746) 485-4846'),
         ('Gingy', NULL, '1980-02-28', NULL, '2001-05-18', 'Online Advocate', true, 'DeliciousCookie@AOL.com', 
         '(395) 724-2986'),
         ('Pinocchio', NULL, '1886-10-30', NULL, '2001-05-18', 'Carpenter', true, 'bigliar@aol.com', '(275) 824-1084'); 
+
+        insert into events (event_name, event_date, event_creation_date, host_id, location, member_guests, maximum_capacity, status)
+        values ('The Advent of Shrek 5', NULL, '2015-09-21', 2, 'The Temple of Shrek', 3, 10000, 'confirmed'),
+        ('Yearly Meeting', '2023-05-18', '2023-01-18', 1, 'The Kitchen in the Temple of Shrek', 3, 9, 'confirmed');
       `).then(() => {
           console.log('DB seeded!')
           res.sendStatus(200)
@@ -76,6 +81,9 @@ module.exports = {
       createMember: (req, res) => {
         console.log(req.body)
         const {fname, lname, dob, address, email, number} = req.body;
+
+        lname = lname === "" ? null : lname;
+        address = address === "" ? null : address;
 
         let date_joined = new Date().toISOString().split('T')[0];
         let membership_status = true;
@@ -137,6 +145,10 @@ module.exports = {
         } else {
           res.status(401).json({status: "Not authenticated"})
         }
+      },
+
+      getEvents: (req, res) => {
+        
       }
   }
 
