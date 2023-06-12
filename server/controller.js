@@ -1,6 +1,6 @@
 require('dotenv').config()
 const {CONNECTION_STRING} = process.env
-const Sequelize = require('sequelize')
+const { Sequelize, DataTypes } = require('sequelize')
 
 const sequelize = new Sequelize(CONNECTION_STRING, {
     dialect: 'postgres',
@@ -11,6 +11,24 @@ const sequelize = new Sequelize(CONNECTION_STRING, {
   }
 })
 
+const Event = sequelize.define('events', {
+  event_id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true, 
+    primaryKey: true,
+  },
+  event_name: DataTypes.STRING,
+  event_date: DataTypes.DATE,
+  event_creation_date: DataTypes.DATE,
+  host_id: DataTypes.INTEGER,
+  location: DataTypes.STRING,
+  member_guests: DataTypes.INTEGER,
+  maximum_capacity: DataTypes.INTEGER,
+  status: DataTypes.STRING,
+}, {
+  timestamps: false,
+  freezeTableName: true,
+})
 
 module.exports = {
   seed: (req, res) => {
@@ -147,14 +165,15 @@ module.exports = {
         }
       },
 
-      getEvents: (req, res) => {
-        
+      Event,
+
+      getEvents: async (req, res) => {
+        try {
+          const events = await Event.findAll();
+          res.json(events);
+      } catch (err) {
+          console.log(err);
+          res.status(500).send('An error occurred while fetching events');
       }
   }
-
-
-  // 
-
-  // 
-
-  // 
+}

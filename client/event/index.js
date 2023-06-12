@@ -4,7 +4,7 @@ const logoutLink = document.getElementById("logout-link")
 let isLoggedIn = false;
 
 function getEvents() {
-  fetch('http://localhost:4200/api/events', {
+  fetch('http://localhost:4200/api/getEvents', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
@@ -14,16 +14,21 @@ function getEvents() {
   .then(data => {
     console.log(data);
     let eventsDiv = document.getElementById('events');
-    data.forEach(event => {
+    data.forEach(events => {
       let h2 = document.createElement('h2');
-      let p = document.getElementById('p');
-      h2.textContent = `Event: ${event.event_name}`
-      p.textContent = `Date: ${event.event_date}, Location: ${event.location}, Event Posted: ${event.event_creation_date}, Hosted By: ${event.host_id}, Number of Guests: ${event.member_guests}, Capacity: ${event.maximum_capacity}, Status: ${event.status}`;
-      eventsDiv.appendChild(h2, p);
+      let p = document.createElement('p');
+      h2.textContent = `Event: ${events.event_name}`
+      p.textContent = `Date: ${events.event_date}, Location: ${events.location}, Event Posted: ${events.event_creation_date}, Hosted By: ${events.host_id}, Number of Guests: ${events.member_guests}, Capacity: ${events.maximum_capacity}, Status: ${events.status}`;
+      eventsDiv.appendChild(h2);
+      eventsDiv.appendChild(p);
     })
+  })
+  .catch((error) => {
+    console.error('Error:', error)
   })
 }
 
+getEvents()
 
 forumLink.addEventListener('click', (event) => {
   if (localStorage.getItem('isLoggedIn') !== 'true') {

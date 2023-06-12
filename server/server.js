@@ -4,7 +4,7 @@ const cors = require("cors");
 require("dotenv").config()
 const path = require('path')
 const { PORT } = process.env;
-const { seed, createMember, authenticateMember, logout, checkAuthentication } = require('./controller.js')
+const { seed, createMember, authenticateMember, logout, checkAuthentication, getEvents } = require('./controller.js')
 
 const app = express();
 
@@ -22,11 +22,11 @@ app.post('/seed', seed)
 app.post('/members', createMember)
 app.post('/authenticateMember', authenticateMember)
 app.post('/logout', logout)
-app.get("/checkAuthentication", checkAuthentication, (req, res) => {
+app.get('/checkAuthentication', checkAuthentication, (req, res) => {
     res.json({status: "Authenticated"})
 })
 
-
+app.get('/api/getEvents', getEvents)
 
 
 
