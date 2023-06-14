@@ -1,5 +1,9 @@
 const forumLink = document.getElementById("forum-link");
 const logoutLink = document.getElementById("logout-link")
+const modal = document.getElementById("myModal");
+const eventBtn = document.getElementById("event-btn");
+const modalBtn = document.getElementById("modal-btn")
+const span = document.getElementsByClassName("close")[0];
 
 let isLoggedIn = false;
 
@@ -18,7 +22,7 @@ function getEvents() {
       let h2 = document.createElement('h2');
       let p = document.createElement('p');
       h2.textContent = `Event: ${events.event_name}`
-      p.textContent = `Date: ${events.event_date}, Location: ${events.location}, Event Posted: ${events.event_creation_date}, Hosted By: ${events.host_id}, Number of Guests: ${events.member_guests}, Capacity: ${events.maximum_capacity}, Status: ${events.status}`;
+      p.textContent = `Date: ${events.event_date}, Location: ${events.location}, Event Posted: ${events.event_creation_date}, Hosted By: ${events.host_id}, Number of Guests: ${events.member_guests}, Capacity: ${events.maximum_capacity}, Is Active: ${events.is_active}, Event Description ${events.event_text}`;
       eventsDiv.appendChild(h2);
       eventsDiv.appendChild(p);
     })
@@ -29,6 +33,37 @@ function getEvents() {
 }
 
 getEvents()
+
+modalBtn.onclick = function() {
+  modal.style.display = "block";
+}
+
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
+eventBtn.addEventListener('submit', function(event) {
+  event.preventDefault();
+
+  let eventData = {
+      eName: document.getElementById('event-name').value,
+      eDate: document.getElementById('event-date').value,
+      location: document.getElementById('location').value,
+      capacity: document.getElementById('capacity').value,
+      isActive: document.getElementById('is-active').checked,
+      eText: document.getElementById('event-text').value
+  }
+
+  axios.post("http://localhost:4200/events", eventData).then(res => {
+      console.log(res.data);
+  }).catch(err => console.log(err))
+})
 
 forumLink.addEventListener('click', (event) => {
   if (localStorage.getItem('isLoggedIn') !== 'true') {

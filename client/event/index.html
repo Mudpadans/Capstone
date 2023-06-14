@@ -23,6 +23,35 @@
 
     </section>
 
+    <button id="modal-btn">Create Event</button>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id = "event-form">
+                <label for="event-name">Event Name:</label><br>
+                <input type="text" id="event-name" name="event-name" required/><br>
+
+                <label for="event-date">Event Date:</label><br>
+                <input type="text" id="event-date" name="event-date"/><br>
+
+                <label for="location">Location:</label><br>
+                <input type="text" id="location" name="location"/><br>
+
+                <label for="capacity">Maximum Capacity:</label><br>
+                <input type="text" id="capacity" name="capacity"/><br>
+
+                <label for="is-active">Status:</label><br>
+                <input type="checkbox" id="is-active" name="is-active" required/><br>
+
+                <label for="event-text">Event Description:</label><br>
+                <input type="text" id="event-text" name="event-text"/>
+
+                <button for="event-btn" id="event-btn">Submit Event</button>
+            </form>
+        </div>
+    </div>
+
     <footer>
         <div class="contact-us">
             <h2>Contact Us</h2>

@@ -24,7 +24,8 @@ const Event = sequelize.define('events', {
   location: DataTypes.STRING,
   member_guests: DataTypes.INTEGER,
   maximum_capacity: DataTypes.INTEGER,
-  status: DataTypes.STRING,
+  is_active: DataTypes.BOOLEAN,
+  event_text: DataTypes.TEXT
 }, {
   timestamps: false,
   freezeTableName: true,
@@ -57,10 +58,11 @@ module.exports = {
           event_date date null,
           event_creation_date date,
           host_id int references members(member_id),
-          location varchar(50),
+          location varchar(50) null,
           member_guests int null,
           maximum_capacity int,
-          status varchar(20)
+          is_active boolean,
+          event_text text null
         );
 
         create table discussions (
@@ -87,9 +89,9 @@ module.exports = {
         '(395) 724-2986'),
         ('Pinocchio', NULL, '1886-10-30', NULL, '2001-05-18', 'Carpenter', true, 'bigliar@aol.com', '(275) 824-1084'); 
 
-        insert into events (event_name, event_date, event_creation_date, host_id, location, member_guests, maximum_capacity, status)
-        values ('The Advent of Shrek 5', NULL, '2015-09-21', 2, 'The Temple of Shrek', 3, 10000, 'confirmed'),
-        ('Yearly Meeting', '2023-05-18', '2023-01-18', 1, 'The Kitchen in the Temple of Shrek', 3, 9, 'confirmed');
+        insert into events (event_name, event_date, event_creation_date, host_id, location, member_guests, maximum_capacity, is_active, event_text)
+        values ('The Advent of Shrek 5', NULL, '2015-09-21', 2, 'The Temple of Shrek', 3, 10000, true, NULL),
+        ('Yearly Meeting', '2023-05-18', '2023-01-18', 1, 'The Kitchen in the Temple of Shrek', 3, 9, true, NULL);
       `).then(() => {
           console.log('DB seeded!')
           res.sendStatus(200)
@@ -97,8 +99,7 @@ module.exports = {
       },
       
       createMember: (req, res) => {
-        console.log(req.body)
-        const {fname, lname, dob, address, email, number} = req.body;
+        let {fname, lname, dob, address, email, number} = req.body;
 
         lname = lname === "" ? null : lname;
         address = address === "" ? null : address;
@@ -175,5 +176,41 @@ module.exports = {
           console.log(err);
           res.status(500).send('An error occurred while fetching events');
       }
-  }
+    },
+
+    createEvent: (req, res) => {
+      let {eName, eDate, location, capacity, isActive, eText} = req.body;
+      console.log(req.body);
+
+      eDate = eDate === "" ? null : eDate;
+      location = location === "" ? null : location;
+      capacity = capacity === "" ? null : capacity;
+      eText = eText === "" ? null : eText;
+
+      let event_creation_date = new Date().toISOString().split('T')[0];
+      let host_id = req.member.id;
+      let member_guests = 0;
+
+      sequelize.query(`INSERT INTO events (event_name, event_date, event_creation_date, host_id, location, member_guests, maximum_capacity, is_active, event_text)
+      VALUES (:event_name, :event_date, :event_creation_date, :host_id, :location, :member_guests, :maximum_capacity, :is_active, :event_text)`), {
+        replacements: {
+          event_name: eName,
+          event_date: eDate,
+          event_creation_date: event_creation_date,
+          host_id: host_id, 
+          location: location, 
+          member_guests: member_guests,
+          maximum_capacity: capacity,
+          is_active: isActive,
+          event_text: eText
+        }}
+        .then(() => {
+          console.log('New event created!')
+          res.status(200).json({message: "New event created"})
+        })
+        .catch(err => {
+          console.log('Error creating new event', err)
+          res.status(500).json({error: "Error creating new event"})
+        })
+    }
 }
