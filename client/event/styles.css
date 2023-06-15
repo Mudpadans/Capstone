@@ -17,7 +17,7 @@ html, body {
     position: relative;
     background-color: beige;
     margin: 0; 
-    min-height: 100vh;
+    min-height: 125vh;
     width: 100%;
     padding: 0;
 }
@@ -51,6 +51,7 @@ header {
 h1, h2 {
     font-family: 'Cinzel', Arial, Helvetica, sans-serif;
     color: #271616;
+    text-align: center;
 }
 
 h3 {
@@ -62,10 +63,42 @@ h3 {
 p, li {
     font-family: 'Trajan-pro', Arial, Helvetica, sans-serif;
     color: #8B4513;
+    font-size: 12px;
 }
 
 .event-calendar {
     flex-grow: 1;
+}
+
+#events {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.event {
+    flex: 0 0 400px;
+    box-sizing: border-box;
+    margin: 5px;
+    border: 1px solid black;
+    padding: 5px;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.button-div {
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    width: 100%;
+}
+
+.button {
+    height: 40px;
+    width: 90px;
+    margin: 5px;
 }
 
 .modal {

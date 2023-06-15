@@ -142,6 +142,7 @@ module.exports = {
         .then((data) => {
           if (data.length > 0) {
             req.session.isLoggedIn = true;
+            req.session.memberId = data[0].member_id;
             res.json({status: "Authenticated"})
           } else {
             res.json({status: "Email not found"})
@@ -187,12 +188,13 @@ module.exports = {
       capacity = capacity === "" ? null : capacity;
       eText = eText === "" ? null : eText;
 
+      console.log(req.session)
       let event_creation_date = new Date().toISOString().split('T')[0];
-      let host_id = req.member.id;
+      let host_id = req.session.memberId;
       let member_guests = 0;
 
       sequelize.query(`INSERT INTO events (event_name, event_date, event_creation_date, host_id, location, member_guests, maximum_capacity, is_active, event_text)
-      VALUES (:event_name, :event_date, :event_creation_date, :host_id, :location, :member_guests, :maximum_capacity, :is_active, :event_text)`), {
+      VALUES (:event_name, :event_date, :event_creation_date, :host_id, :location, :member_guests, :maximum_capacity, :is_active, :event_text)`, {
         replacements: {
           event_name: eName,
           event_date: eDate,
@@ -203,7 +205,8 @@ module.exports = {
           maximum_capacity: capacity,
           is_active: isActive,
           event_text: eText
-        }}
+        }
+      })
         .then(() => {
           console.log('New event created!')
           res.status(200).json({message: "New event created"})

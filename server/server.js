@@ -27,7 +27,7 @@ app.get('/checkAuthentication', checkAuthentication, (req, res) => {
 })
 
 app.get('/api/getEvents', getEvents)
-app.post('/events', createEvent)
+app.post('/events', checkAuthentication, createEvent)
 
 
 

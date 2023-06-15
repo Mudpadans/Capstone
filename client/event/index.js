@@ -1,7 +1,7 @@
 const forumLink = document.getElementById("forum-link");
 const logoutLink = document.getElementById("logout-link")
 const modal = document.getElementById("myModal");
-const eventBtn = document.getElementById("event-btn");
+const form = document.getElementById("event-form");
 const modalBtn = document.getElementById("modal-btn")
 const span = document.getElementsByClassName("close")[0];
 
@@ -19,12 +19,47 @@ function getEvents() {
     console.log(data);
     let eventsDiv = document.getElementById('events');
     data.forEach(events => {
+      let eventDiv = document.createElement('div')
+      eventDiv.classList.add('event')
+      let buttonDiv = document.createElement('div')
+      buttonDiv.classList.add('button-div')
+
       let h2 = document.createElement('h2');
-      let p = document.createElement('p');
-      h2.textContent = `Event: ${events.event_name}`
-      p.textContent = `Date: ${events.event_date}, Location: ${events.location}, Event Posted: ${events.event_creation_date}, Hosted By: ${events.host_id}, Number of Guests: ${events.member_guests}, Capacity: ${events.maximum_capacity}, Is Active: ${events.is_active}, Event Description ${events.event_text}`;
-      eventsDiv.appendChild(h2);
-      eventsDiv.appendChild(p);
+      let ul = document.createElement('ul')
+      let li = document.createElement('li');
+      let goingButton = document.createElement('button')
+      goingButton.classList.add('button')
+      let notGoingButton = document.createElement('button')
+      notGoingButton.classList.add('button')
+      
+      h2.textContent = `Event: ${events.event_name}`;
+      
+      let eventProperties = [
+        `Date: ${events.event_date}`,
+        `Location: ${events.location}`,
+        `Event Posted: ${events.event_creation_date}`,
+        `Hosted By: ${events.host_id}`,
+        `Number of Guests: ${events.member_guests}`,
+        `Capacity: ${events.maximum_capacity}`,
+        `Is Active: ${events.is_active}`,
+        `Event Description ${events.event_text}`
+      ];
+
+      eventProperties.forEach(property => {
+        let li = document.createElement('li');
+        li.textContent = property;
+        ul.appendChild(li);
+      })
+      
+      goingButton.textContent = "Going?"
+      notGoingButton.textContent = "Not Going?"
+
+      eventDiv.appendChild(h2);
+      eventDiv.appendChild(ul);
+      buttonDiv.appendChild(goingButton);
+      buttonDiv.appendChild(notGoingButton);
+      eventDiv.appendChild(buttonDiv);
+      eventsDiv.appendChild(eventDiv);
     })
   })
   .catch((error) => {
@@ -48,21 +83,55 @@ window.onclick = function(event) {
   }
 }
 
-eventBtn.addEventListener('submit', function(event) {
-  event.preventDefault();
-
+function createEvent (eName, eDate, location, capacity, isActive, eText) {
   let eventData = {
-      eName: document.getElementById('event-name').value,
-      eDate: document.getElementById('event-date').value,
-      location: document.getElementById('location').value,
-      capacity: document.getElementById('capacity').value,
-      isActive: document.getElementById('is-active').checked,
-      eText: document.getElementById('event-text').value
+    eName: eName,
+    eDate: eDate,
+    location: location,
+    capacity: capacity,
+    isActive: isActive,
+    eText: eText
   }
 
-  axios.post("http://localhost:4200/events", eventData).then(res => {
-      console.log(res.data);
-  }).catch(err => console.log(err))
+  fetch('http://localhost:4200/events', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(eventData)
+  })
+  .then(res => {
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+    res.json();
+  })
+  .then(data => {
+    console.log(data);
+    let eventsDiv = document.getElementById('events');
+      let h2 = document.createElement('h2');
+      let p = document.createElement('p');
+      h2.textContent = `Event: ${events.event_name}`
+      p.textContent = `Date: ${events.event_date}, Location: ${events.location}, Event Posted: ${events.event_creation_date}, Hosted By: ${events.host_id}, Number of Guests: ${events.member_guests}, Capacity: ${events.maximum_capacity}, Is Active: ${events.is_active}, Event Description ${events.event_text}`;
+      eventsDiv.appendChild(h2);
+      eventsDiv.appendChild(p);
+  })
+  .catch((error) => {
+    console.error('Error:', error);
+  })
+}
+
+form.addEventListener('submit', function(event) {
+  event.preventDefault();
+
+  let eName = document.getElementById('event-name').value;
+  let eDate = document.getElementById('event-date').value;
+  let location = document.getElementById('location').value;
+  let capacity = document.getElementById('capacity').value;
+  let isActive = document.getElementById('is-active').checked;
+  let eText = document.getElementById('event-text').value;
+
+  createEvent (eName, eDate, location, capacity, isActive, eText);
 })
 
 forumLink.addEventListener('click', (event) => {
