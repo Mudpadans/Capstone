@@ -66,11 +66,8 @@ p, li {
     font-size: 12px;
 }
 
-.event-calendar {
+#event-calendar {
     flex-grow: 1;
-}
-
-#events {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
@@ -114,7 +111,7 @@ p, li {
     background-color: rgba(0, 0, 0, 0.4);
 }
 
-#modal-btn {
+#create-modal-btn {
     height: 30px;
     width: 150px;
     margin: 0px auto 15px;

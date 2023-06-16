@@ -31,6 +31,19 @@ const Event = sequelize.define('events', {
   freezeTableName: true,
 })
 
+const Discussion = sequelize.define('discussions', {
+  discussion_id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  discussion_name: DataTypes.STRING,
+  discussion_text: DataTypes.TEXT,
+  author_id: DataTypes.INTEGER,
+  date_posted: DataTypes.DATE,
+  is_active: DataTypes.BOOLEAN
+})
+
 module.exports = {
   seed: (req, res) => {
   sequelize.query(`
@@ -92,6 +105,10 @@ module.exports = {
         insert into events (event_name, event_date, event_creation_date, host_id, location, member_guests, maximum_capacity, is_active, event_text)
         values ('The Advent of Shrek 5', NULL, '2015-09-21', 2, 'The Temple of Shrek', 3, 10000, true, NULL),
         ('Yearly Meeting', '2023-05-18', '2023-01-18', 1, 'The Kitchen in the Temple of Shrek', 3, 9, true, NULL);
+
+        insert into discussions (discussion_name, discussion_text, author_id, date_posted, is_active)
+        values ('I'm a friend not food!', 'I love you all, but Doris keeps giving me looks like she wants to use me in her meals. I don't know what I did to her, but I'm concerned for my safety.', 2, '2016-12/22', true),
+        ('The cake was not a lie!', 'I'm sorry I didn't make the cake in time for Doris's birthday. I just didn't have timy765. OH NOT AGAIN!!', 3, '2022-03-01', true)
       `).then(() => {
           console.log('DB seeded!')
           res.sendStatus(200)
@@ -215,5 +232,45 @@ module.exports = {
           console.log('Error creating new event', err)
           res.status(500).json({error: "Error creating new event"})
         })
+    },
+
+    Discussion,
+
+    getDiscussions: async (req, res) => {
+      try {
+        const discussions = await Discussion.findAll();
+        res.json(discussions);
+    } catch (err) {
+        console.log(err);
+        res.status(500).send('An error occurred while fetching discussions');
     }
+  },
+
+  createDiscussion: (req, res) => {
+    let {dName, dText, isActive} = req.body;
+    console.log(req.body);
+
+    console.log(req.session)
+    let date_posted = new Date().toISOString().split('T')[0];
+    let author_id = req.session.memberId;
+
+    sequelize.query(`INSERT INTO discussions (discussion_name, discussion_text, author_id, date_posted, is_active)
+    VALUES (:discussion_name, :discussion_text, :author_id, :date_posted, :is_active, )`, {
+      replacements: {
+        discussion_name: dName,
+        discussion_text: dText,
+        author_id: author_id,
+        date_posted: date_posted,
+        is_active: isActive,
+      }
+    })
+      .then(() => {
+        console.log('New discussion created!')
+        res.status(200).json({message: "New discussion created"})
+      })
+      .catch(err => {
+        console.log('Error creating new discussion', err)
+        res.status(500).json({error: "Error creating new discussion"})
+      })
+  },
 }

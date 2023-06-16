@@ -2,7 +2,7 @@ const forumLink = document.getElementById("forum-link");
 const logoutLink = document.getElementById("logout-link")
 const modal = document.getElementById("myModal");
 const form = document.getElementById("event-form");
-const modalBtn = document.getElementById("modal-btn")
+const createModalBtn = document.getElementById("create-modal-btn")
 const span = document.getElementsByClassName("close")[0];
 
 let isLoggedIn = false;
@@ -25,8 +25,7 @@ function getEvents() {
       buttonDiv.classList.add('button-div')
 
       let h2 = document.createElement('h2');
-      let ul = document.createElement('ul')
-      let li = document.createElement('li');
+      let ul = document.createElement('ul');
       let goingButton = document.createElement('button')
       goingButton.classList.add('button')
       let notGoingButton = document.createElement('button')
@@ -69,7 +68,7 @@ function getEvents() {
 
 getEvents()
 
-modalBtn.onclick = function() {
+createModalBtn.onclick = function() {
   modal.style.display = "block";
 }
 
@@ -109,16 +108,52 @@ function createEvent (eName, eDate, location, capacity, isActive, eText) {
   .then(data => {
     console.log(data);
     let eventsDiv = document.getElementById('events');
+    data.forEach(events => {
+      let eventDiv = document.createElement('div')
+      eventDiv.classList.add('event')
+      let buttonDiv = document.createElement('div')
+      buttonDiv.classList.add('button-div')
+
       let h2 = document.createElement('h2');
-      let p = document.createElement('p');
-      h2.textContent = `Event: ${events.event_name}`
-      p.textContent = `Date: ${events.event_date}, Location: ${events.location}, Event Posted: ${events.event_creation_date}, Hosted By: ${events.host_id}, Number of Guests: ${events.member_guests}, Capacity: ${events.maximum_capacity}, Is Active: ${events.is_active}, Event Description ${events.event_text}`;
-      eventsDiv.appendChild(h2);
-      eventsDiv.appendChild(p);
-  })
+      let ul = document.createElement('ul');
+      let goingButton = document.createElement('button')
+      goingButton.classList.add('button')
+      let notGoingButton = document.createElement('button')
+      notGoingButton.classList.add('button')
+      
+      h2.textContent = `Event: ${events.event_name}`;
+      
+      let eventProperties = [
+        `Date: ${events.event_date}`,
+        `Location: ${events.location}`,
+        `Event Posted: ${events.event_creation_date}`,
+        `Hosted By: ${events.host_id}`,
+        `Number of Guests: ${events.member_guests}`,
+        `Capacity: ${events.maximum_capacity}`,
+        `Is Active: ${events.is_active}`,
+        `Event Description ${events.event_text}`
+      ];
+
+      eventProperties.forEach(property => {
+        let li = document.createElement('li');
+        li.textContent = property;
+        ul.appendChild(li);
+      })
+      
+      goingButton.textContent = "Going?"
+      notGoingButton.textContent = "Not Going?"
+
+      eventDiv.appendChild(h2);
+      eventDiv.appendChild(ul);
+      buttonDiv.appendChild(goingButton);
+      buttonDiv.appendChild(notGoingButton);
+      eventDiv.appendChild(buttonDiv);
+      eventsDiv.appendChild(eventDiv);
+    })
   .catch((error) => {
     console.error('Error:', error);
   })
+})
 }
 
 form.addEventListener('submit', function(event) {

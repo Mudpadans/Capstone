@@ -10,14 +10,45 @@
 <body>
     <header>
         <h1>Temple of Shrek</h1>
+        <div class="header-links">
+            <h2><a href="/Volumes/GIGAFILES/Devmountain/Capstone/client/landing/index.html">Home</a></h2>
+            <h2><a id="event-link" href="/Volumes/GIGAFILES/Devmountain/Capstone/client/event/index.html">Events</a></h2>
+            <h2>Forum</h2>
+            <h2><a href="/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html">Signup/Login</a></h2>
+            <h2><a id="logout-link" href="/Volumes/GIGAFILES/Devmountain/Capstone/client/landing/index.html">Logout</a></h2>
+        </div>
     </header>
 
-    <section class="discussion-board">
+    <section id="discussion-board">
 
     </section>
 
+    <button id="create-modal-btn">Create Discussion</button>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id = "discussion-form">
+                <label for="discussion-name">Discussion Name:</label><br>
+                <input type="text" id="discussion-name" name="discussion-name" required/><br>
+
+                <label for="discussion-text">Text:</label><br>
+                <input type="text" id="discussion-text" name="discussion-text" required/><br>
+
+                <label for="is-active">Status:</label><br>
+                <input type="checkbox" id="is-active" name="is-active" required/><br>
+
+                <button for="discussion-btn" id="discussion-btn">Submit Discussion</button>
+            </form>
+        </div>
+    </div>
+
     <footer>
-        
+        <div class="contact-us">
+            <h2>Contact Us</h2>
+                <p>email: templeofshrek@aol.com</p>
+                <p>telephone: (+690) 7153</p>
+        </div>
     </footer>
     <script src="/node_modules/axios/dist/axios.min.js"></script>
     <script src="index.js"></script>
