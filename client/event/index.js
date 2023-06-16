@@ -155,7 +155,7 @@ function createEvent (eName, eDate, location, capacity, isActive, eText) {
   })
 })
 }
-
+ 
 form.addEventListener('submit', function(event) {
   event.preventDefault();
 
@@ -189,22 +189,22 @@ logoutLink.addEventListener('click', (event) => {
   }
 })
 
-window.addEventListener('load', (event) => {
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  if (!isLoggedIn) {
-      eventLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
-      forumLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
-  }
-})
+// window.addEventListener('load', (event) => {
+//   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+//   if (!isLoggedIn) {
+//       eventLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
+//       forumLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
+//   }
+// })
 
-window.onload = function() {
-    axios.get('http://localhost:4200/checkAuthentication')
-      .then(res => {
-        if(res.data.status !== "Authenticated") {
-          window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
-        }
-      })
-      .catch(err => {
-        window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
-      });
-  };
+// window.onload = function() {
+//     axios.get('http://localhost:4200/checkAuthentication')
+//       .then(res => {
+//         if(res.data.status !== "Authenticated") {
+//           window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
+//         }
+//       })
+//       .catch(err => {
+//         window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
+//       });
+//   };

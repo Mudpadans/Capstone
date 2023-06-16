@@ -2,9 +2,7 @@ const signupForm = document.getElementById("signup-form")
 const loginForm = document.getElementById("login-form")
 const eventLink = document.getElementById("event-link");
 const forumLink = document.getElementById("forum-link");
-const logoutLink = document.getElementById("logut-link")
-
-let isLoggedIn = false;
+const logoutLink = document.getElementById("logout-link");
 
 signupForm.addEventListener('submit', function(event) {
     event.preventDefault();
@@ -20,11 +18,8 @@ signupForm.addEventListener('submit', function(event) {
 
     axios.post("http://localhost:4200/members", formData).then(res => {
         console.log(res.data);
+        localStorage.setItem('isLoggedIn', 'true')
     }).catch(err => console.log(err))
-
-    isLoggedIn = true;
-
-    localStorage.setItem('isLoggedIn', 'true');
 })
 
 loginForm.addEventListener('submit', function(event) {
@@ -35,48 +30,33 @@ loginForm.addEventListener('submit', function(event) {
     axios.post("http://localhost:4200/authenticateMember", {email})
         .then(res => {
             if (res.data.status === "Authenticated") {
-                isLoggedIn = true;
-                window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html"
+                alert('you are logged in!');
+                localStorage.setItem('memberId', res.data.memberId);
+                localStorage.setItem('isLoggedIn', 'true');
             } else {
                 alert('Invalid Email')
             }
     }).catch(err => console.log(err))
-
-    localStorage.setItem('isLoggedIn', 'true');
 })
 
-eventLink.addEventListener('click', (event) => {
-    if (localStorage.getItem('isLoggedIn') !== 'true') {
-        event.preventDefault();
-        window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
-    }
-});
-
-forumLink.addEventListener('click', (event) => {
-    if (localStorage.getItem('isLoggedIn') !== 'true') {
-        event.preventDefault();
-        window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
+window.addEventListener('load', (event) => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (isLoggedIn) {
+        eventLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/event/index.html";
+        forumLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/forum/index.html";
+    } else {
+        eventLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
+        forumLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
     }
 })
 
 logoutLink.addEventListener('click', (event) => {
     event.preventDefault();
     if (localStorage.getItem('isLoggedIn') === 'true') {
-        axios.post('http://localhost:4200/logout')
-            .then(res => {
-                if(res.data.status === "Logged out") {
-                    localStorage.removeItem('isLoggedIn');
-                    window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/landing/index.html";
-                    location.reload(true);
-                }
-            }).catch(err => console.log(err))
-    }
-})
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('memberId')
+        window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/landing/index.html";
+        }
+    })
 
-window.addEventListener('load', (event) => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    if (!isLoggedIn) {
-        eventLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
-        forumLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
-    }
-})
+

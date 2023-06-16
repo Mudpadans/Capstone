@@ -107,8 +107,8 @@ module.exports = {
         ('Yearly Meeting', '2023-05-18', '2023-01-18', 1, 'The Kitchen in the Temple of Shrek', 3, 9, true, NULL);
 
         insert into discussions (discussion_name, discussion_text, author_id, date_posted, is_active)
-        values ('I'm a friend not food!', 'I love you all, but Doris keeps giving me looks like she wants to use me in her meals. I don't know what I did to her, but I'm concerned for my safety.', 2, '2016-12/22', true),
-        ('The cake was not a lie!', 'I'm sorry I didn't make the cake in time for Doris's birthday. I just didn't have timy765. OH NOT AGAIN!!', 3, '2022-03-01', true)
+        values ('I am a friend not food!', 'I love you all, but Doris keeps giving me looks like she wants to use me in her meals. I do not know what I did to her, but I am concerned for my safety.', 2, '2016-12-22', true),
+        ('The cake was not a lie!', 'I am sorry I did not make the cake in time for Dorises birthday. I just did not have timy765. OH NOT AGAIN!!', 3, '2022-03-01', true)
       `).then(() => {
           console.log('DB seeded!')
           res.sendStatus(200)
@@ -151,16 +151,15 @@ module.exports = {
 
       authenticateMember: (req, res) => {
         let { email } = req.body;
-
+    
         sequelize.query("SELECT * FROM members WHERE email = :email", {
           replacements: { email },
           type: sequelize.QueryTypes.SELECT,
         })
         .then((data) => {
           if (data.length > 0) {
-            req.session.isLoggedIn = true;
-            req.session.memberId = data[0].member_id;
-            res.json({status: "Authenticated"})
+            console.log('Member authenticated!')
+            res.json({status: "Authenticated", memberId: data[0].member_id})
           } else {
             res.json({status: "Email not found"})
           }
@@ -169,19 +168,26 @@ module.exports = {
           console.log("Error authenticating user", err)
           res.sendStatus(500)
         })
-      },
-
-      logout: (req, res) => {
-        req.session.isLoggedIn = false;
-        res.json({status: "Logged out"})
-      },
+    },
 
       checkAuthentication: (req, res, next) => {
-        if (req.session && req.session.isLoggedIn) {
-          next();
-        } else {
-          res.status(401).json({status: "Not authenticated"})
-        }
+        const memberId = req.headers['x-member-id'];
+
+        sequelize.query("SELECT * FROM members WHERE member_id = :memberId", {
+          replacements: { memberId },
+          type: sequelize.QueryTypes.SELECT,
+        })
+        .then((data) => {
+          if (data.length > 0) {
+            next();
+          } else {
+            res.status(401).json({status: "Not authenticated"})
+          }
+        })
+        .catch((err) => {
+          console.log("Error checking authentication", err)
+          res.sendStatus(500)
+        })
       },
 
       Event,
@@ -207,7 +213,7 @@ module.exports = {
 
       console.log(req.session)
       let event_creation_date = new Date().toISOString().split('T')[0];
-      let host_id = req.session.memberId;
+      let host_id = req.headers['x-member-id'];
       let member_guests = 0;
 
       sequelize.query(`INSERT INTO events (event_name, event_date, event_creation_date, host_id, location, member_guests, maximum_capacity, is_active, event_text)
@@ -252,7 +258,7 @@ module.exports = {
 
     console.log(req.session)
     let date_posted = new Date().toISOString().split('T')[0];
-    let author_id = req.session.memberId;
+    let author_id = req.headers['x-member-id'];
 
     sequelize.query(`INSERT INTO discussions (discussion_name, discussion_text, author_id, date_posted, is_active)
     VALUES (:discussion_name, :discussion_text, :author_id, :date_posted, :is_active, )`, {
