@@ -11,6 +11,8 @@ const sequelize = new Sequelize(CONNECTION_STRING, {
   }
 })
 
+const m
+
 const Event = sequelize.define('events', {
   event_id: {
     type: DataTypes.INTEGER,
@@ -42,6 +44,9 @@ const Discussion = sequelize.define('discussions', {
   author_id: DataTypes.INTEGER,
   date_posted: DataTypes.DATE,
   is_active: DataTypes.BOOLEAN
+}, {
+  timestamps: false,
+  freezeTableName: true,
 })
 
 module.exports = {
@@ -261,7 +266,7 @@ module.exports = {
     let author_id = req.headers['x-member-id'];
 
     sequelize.query(`INSERT INTO discussions (discussion_name, discussion_text, author_id, date_posted, is_active)
-    VALUES (:discussion_name, :discussion_text, :author_id, :date_posted, :is_active, )`, {
+    VALUES (:discussion_name, :discussion_text, :author_id, :date_posted, :is_active,)`, {
       replacements: {
         discussion_name: dName,
         discussion_text: dText,

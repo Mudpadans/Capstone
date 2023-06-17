@@ -5,10 +5,8 @@ const form = document.getElementById("event-form");
 const createModalBtn = document.getElementById("create-modal-btn")
 const span = document.getElementsByClassName("close")[0];
 
-let isLoggedIn = false;
-
 function getEvents() {
-  fetch('http://localhost:4200/api/getEvents', {
+  fetch('http://localhost:XXXX/api/getEvents', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
@@ -17,7 +15,7 @@ function getEvents() {
   .then(response => response.json())
   .then(data => {
     console.log(data);
-    let eventsDiv = document.getElementById('events');
+    let eventsDiv = document.getElementById('event-calendar');
     data.forEach(events => {
       let eventDiv = document.createElement('div')
       eventDiv.classList.add('event')
@@ -95,7 +93,8 @@ function createEvent (eName, eDate, location, capacity, isActive, eText) {
   fetch('http://localhost:4200/events', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'x-member-id': localStorage.getItem('memberId')
     },
     body: JSON.stringify(eventData)
   })
@@ -107,7 +106,7 @@ function createEvent (eName, eDate, location, capacity, isActive, eText) {
   })
   .then(data => {
     console.log(data);
-    let eventsDiv = document.getElementById('events');
+    let eventsDiv = document.getElementById('event-calendar');
     data.forEach(events => {
       let eventDiv = document.createElement('div')
       eventDiv.classList.add('event')
@@ -169,42 +168,21 @@ form.addEventListener('submit', function(event) {
   createEvent (eName, eDate, location, capacity, isActive, eText);
 })
 
-forumLink.addEventListener('click', (event) => {
-  if (localStorage.getItem('isLoggedIn') !== 'true') {
-      event.preventDefault();
-      window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
+window.addEventListener('load', (event) => {
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  if (isLoggedIn) {
+      forumLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/forum/index.html";
+  } else {
+      forumLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
   }
 })
 
 logoutLink.addEventListener('click', (event) => {
   event.preventDefault();
   if (localStorage.getItem('isLoggedIn') === 'true') {
-      axios.post('http://localhost:4200/logout')
-          .then(res => {
-              if(res.data.status === "Logged out") {
-                  localStorage.removeItem('isLoggedIn');
-                  window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/landing/index.html";
-              }
-          }).catch(err => console.log(err))
-  }
-})
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('memberId')
+      window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/landing/index.html";
+      }
+  })
 
-// window.addEventListener('load', (event) => {
-//   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-//   if (!isLoggedIn) {
-//       eventLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
-//       forumLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
-//   }
-// })
-
-// window.onload = function() {
-//     axios.get('http://localhost:4200/checkAuthentication')
-//       .then(res => {
-//         if(res.data.status !== "Authenticated") {
-//           window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
-//         }
-//       })
-//       .catch(err => {
-//         window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
-//       });
-//   };

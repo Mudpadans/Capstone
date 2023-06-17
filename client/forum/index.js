@@ -17,7 +17,7 @@ function getDiscussions() {
   .then(response => response.json())
   .then(data => {
     console.log(data);
-    let discussionsDiv = document.getElementById('discussions');
+    let discussionsDiv = document.getElementById('discussion-board');
     data.forEach(discussions => {
       let discussionDiv = document.createElement('div')
       discussionDiv.classList.add('discussion')
@@ -34,7 +34,7 @@ function getDiscussions() {
       let discussionProperties = [
         `${discussions.discussion_text}`,
         `Discussion Posted: ${discussions.date_posted}`,
-        `Posted By: ${discssions.author_id}`,
+        `Posted By: ${discussions.author_id}`,
         `Is Active: ${discussions.is_active}`,
       ];
 
@@ -83,7 +83,8 @@ function createsDiscussion (dName, dText, isActive) {
   fetch('http://localhost:4200/discussions', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'x-member-id': localStorage.getItem('memberId')
     },
     body: JSON.stringify(discussionData)
   })
@@ -95,7 +96,7 @@ function createsDiscussion (dName, dText, isActive) {
   })
   .then(data => {
     console.log(data);
-    let discussionsDiv = document.getElementById('discussions');
+    let discussionsDiv = document.getElementById('discussion-board');
     data.forEach(discussions => {
       let discussionDiv = document.createElement('div')
       discussionDiv.classList.add('discussion')
@@ -146,44 +147,20 @@ form.addEventListener('submit', function(event) {
   createEvent (dName, dText, isActive);
 })
 
-eventLink.addEventListener('click', (event) => {
-  if (localStorage.getItem('isLoggedIn') !== 'true') {
-      event.preventDefault();
-      window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/event/index.html";
+window.addEventListener('load', (event) => {
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  if (isLoggedIn) {
+      eventLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/event/index.html";
+  } else {
+      eventLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
   }
 })
 
 logoutLink.addEventListener('click', (event) => {
   event.preventDefault();
   if (localStorage.getItem('isLoggedIn') === 'true') {
-      axios.post('http://localhost:4200/logout')
-          .then(res => {
-              if(res.data.status === "Logged out") {
-                  localStorage.removeItem('isLoggedIn');
-                  window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/landing/index.html";
-              }
-          }).catch(err => console.log(err))
-  }
-})
-
-window.addEventListener('load', (event) => {
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  if (!isLoggedIn) {
-      eventLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
-      forumLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
-  }
-})
-
-window.onload = function() {
-    axios.get('http://localhost:4200/checkAuthentication')
-      .then(res => {
-        if(res.data.status !== "Authenticated") {
-          // User is not authenticated, redirect to signup page
-          window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
-        }
-      })
-      .catch(err => {
-        // Request failed, probably because user is not authenticated
-        window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
-      });
-  };
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('memberId')
+      window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/landing/index.html";
+      }
+  })
