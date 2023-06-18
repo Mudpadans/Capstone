@@ -18,6 +18,7 @@ signupForm.addEventListener('submit', function(event) {
 
     axios.post("http://localhost:4200/members", formData).then(res => {
         console.log(res.data);
+        alert('you are signed up!')
         localStorage.setItem('isLoggedIn', 'true')
     }).catch(err => console.log(err))
 })

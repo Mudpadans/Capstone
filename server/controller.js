@@ -11,7 +11,25 @@ const sequelize = new Sequelize(CONNECTION_STRING, {
   }
 })
 
-const m
+const Member = sequelize.define('members', {
+  member_id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  first_name: DataTypes.STRING,
+  last_name: DataTypes.STRING,
+  date_of_birth: DataTypes.DATE,
+  address: DataTypes.STRING,
+  date_joined: DataTypes.DATE,
+  role: DataTypes.STRING,
+  membership_status: DataTypes.BOOLEAN,
+  email: DataTypes.TEXT,
+  phone_number: DataTypes.STRING
+}, {
+  timestamps: false,
+  freezeTableName: true,
+})
 
 const Event = sequelize.define('events', {
   event_id: {
@@ -49,11 +67,35 @@ const Discussion = sequelize.define('discussions', {
   freezeTableName: true,
 })
 
+const Attendance = sequelize.define('attendance', {
+  member_id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true
+  },
+  event_id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true
+  },
+  status: DataTypes.BOOLEAN
+}, {
+  timestamps: false,
+  freezeTableName: true,
+})
+
+Event.belongsTo(Member, {foreignKey: 'host_id'});
+Member.hasMany(Event, {foreignKey: 'host_id'});
+
+Member.hasMany(Attendance, { foreignKey: 'member_id' });
+Attendance.belongsTo(Member, { foreignKey: 'member_id' })
+Event.hasMany(Attendance, { foreignKey: 'event_id' });
+Attendance.belongsTo(Event, { foreignKey: 'event_id' })
+
 module.exports = {
   seed: (req, res) => {
   sequelize.query(`
         drop table if exists comments CASCADE;
         drop table if exists discussions CASCADE;
+        drop table if exists attendance CASCADE;
         drop table if exists events CASCADE;
         drop table if exists members CASCADE;
         
@@ -83,6 +125,13 @@ module.exports = {
           event_text text null
         );
 
+        create table attendance (
+          member_id int references members(member_id),
+          event_id int references events(event_id),
+          status boolean,
+          primary key (member_id, event_id)
+        );
+
         create table discussions (
           discussion_id serial primary key,
           discussion_name varchar(30),
@@ -108,8 +157,8 @@ module.exports = {
         ('Pinocchio', NULL, '1886-10-30', NULL, '2001-05-18', 'Carpenter', true, 'bigliar@aol.com', '(275) 824-1084'); 
 
         insert into events (event_name, event_date, event_creation_date, host_id, location, member_guests, maximum_capacity, is_active, event_text)
-        values ('The Advent of Shrek 5', NULL, '2015-09-21', 2, 'The Temple of Shrek', 3, 10000, true, NULL),
-        ('Yearly Meeting', '2023-05-18', '2023-01-18', 1, 'The Kitchen in the Temple of Shrek', 3, 9, true, NULL);
+        values ('The Advent of Shrek 5', NULL, '2015-09-21', 2, 'The Temple of Shrek', 0, 10000, true, NULL),
+        ('Yearly Meeting', '2023-05-18', '2023-01-18', 1, 'The Kitchen in the Temple of Shrek', 0, 9, true, NULL);
 
         insert into discussions (discussion_name, discussion_text, author_id, date_posted, is_active)
         values ('I am a friend not food!', 'I love you all, but Doris keeps giving me looks like she wants to use me in her meals. I do not know what I did to her, but I am concerned for my safety.', 2, '2016-12-22', true),
@@ -119,8 +168,11 @@ module.exports = {
           res.sendStatus(200)
       }).catch(err => console.log('error seeding DB', err))
       },
+
+      Member,
       
       createMember: (req, res) => {
+        console.log(req.body) 
         let {fname, lname, dob, address, email, number} = req.body;
 
         lname = lname === "" ? null : lname;
@@ -199,8 +251,16 @@ module.exports = {
 
       getEvents: async (req, res) => {
         try {
-          const events = await Event.findAll();
+          const events = await Event.findAll({
+            include: [
+              {
+                model: Member,
+                attributes: ['first_name']
+              },
+            ],
+          });
           res.json(events);
+          console.log(events)
       } catch (err) {
           console.log(err);
           res.status(500).send('An error occurred while fetching events');
@@ -216,7 +276,6 @@ module.exports = {
       capacity = capacity === "" ? null : capacity;
       eText = eText === "" ? null : eText;
 
-      console.log(req.session)
       let event_creation_date = new Date().toISOString().split('T')[0];
       let host_id = req.headers['x-member-id'];
       let member_guests = 0;
@@ -245,6 +304,64 @@ module.exports = {
         })
     },
 
+    updateAttendance: async (req, res) => {
+      let { memberId, eventId, status } = req.body;
+
+      try {
+        let attendance = await Attendance.findOne({
+          where: { member_id: memberId, event_id: eventId}
+        });
+
+        if ((attendance === null || !attendance.status) && status) {
+          let event = await Event.findOne({ where: { event_id: eventId } })
+          event.increment('member_guests')
+        }
+
+        if (attendance && attendance.status && !status) {
+          let event = await Event.findOne({ where: { event_id: eventId } })
+          event.decrement('member_guests')
+        }
+
+        await Attendance.upsert({ member_id: memberId, event_id: eventId, status: status })
+
+        res.status(200).json({ message: "Attendance updated successfully" }) 
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error updating attendance" })
+      }
+    },
+
+    deleteEvent: async (req, res) => {
+      const { id } = req.params
+      try {
+        const result = await sequelize.models.Event.destroy({
+          where: {
+            event_id: id
+          }
+        })
+
+        if (result !== 0) {
+          res.status(200).json({
+            status: 'success',
+            data: {
+              rows_deleted: result
+            }
+          })
+        } else {
+          res.status(404).json({
+            status: 'error',
+            message: 'No event found with the provided id'
+          })
+        }
+      } catch (err) {
+        console.error(err)
+        res.status(500).json({
+          status: 'error',
+          error: err
+        })
+      }
+    },
+
     Discussion,
 
     getDiscussions: async (req, res) => {
@@ -259,9 +376,6 @@ module.exports = {
 
   createDiscussion: (req, res) => {
     let {dName, dText, isActive} = req.body;
-    console.log(req.body);
-
-    console.log(req.session)
     let date_posted = new Date().toISOString().split('T')[0];
     let author_id = req.headers['x-member-id'];
 

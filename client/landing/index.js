@@ -22,3 +22,4 @@ window.addEventListener('load', (event) => {
         forumLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
     }
 })
+

@@ -5,7 +5,6 @@ const form = document.getElementById("discussion-form");
 const createModalBtn = document.getElementById("create-modal-btn")
 const span = document.getElementsByClassName("close")[0];
 
-let isLoggedIn = false;
 
 function getDiscussions() {
   fetch('http://localhost:4200/api/getDiscussions', {
