@@ -333,20 +333,30 @@ module.exports = {
 
     deleteEvent: async (req, res) => {
       const { id } = req.params
+      const memberId = req.body.memberId;
+
       try {
-        const result = await sequelize.models.Event.destroy({
+        const event = await sequelize.models.Event.findOne({
           where: {
-            event_id: id
-          }
+            event_id: id,
+          },
         })
 
-        if (result !== 0) {
-          res.status(200).json({
-            status: 'success',
-            data: {
-              rows_deleted: result
-            }
-          })
+        if (event) {
+          if (event.host_id === memberId) {
+            await event.destroy()
+            res.status(200).json({
+              status: 'success',
+              data: {
+                rows_deleted: 1,
+              }
+            })
+          } else {
+            res.staus(403).json({
+              status: 'error',
+              message: 'You are not authorized to delete this event.',
+            })
+          }
         } else {
           res.status(404).json({
             status: 'error',
@@ -359,6 +369,32 @@ module.exports = {
           status: 'error',
           error: err
         })
+      }
+    },
+
+    updateEvent: async (req, res) => {
+      const { id } = req.params;
+      const updatedData = req.body;
+      const memberId = updatedData.memberId;
+
+      delete updatedData.memberId;
+
+      const event = await sequelize.models.Event.findOne({
+        where: {
+          event_id: id
+        }
+      })
+
+      if (event) {
+        if(event.author_id === memberId) {
+          event.update(updatedData).then(updatedEvent => {
+            res.json(updatedEvent)
+          })
+        } else {
+          res.status(403).json({ error: 'You are not authorized to update this event.' })
+        }
+      } else {
+        res.status(404).json({ error: 'Event not found.' })
       }
     },
 

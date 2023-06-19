@@ -3,7 +3,7 @@ const cors = require("cors");
 require("dotenv").config()
 const path = require('path')
 const { PORT } = process.env;
-const { seed, createMember, authenticateMember, getEvents, createEvent, deleteEvent, getDiscussions, createDiscussion, updateAttendance } = require('./controller.js')
+const { seed, createMember, authenticateMember, getEvents, createEvent, deleteEvent, updateEvent, getDiscussions, createDiscussion, updateAttendance } = require('./controller.js')
 
 const app = express();
 
@@ -25,6 +25,7 @@ app.post('/authenticateMember', authenticateMember)
 app.get('/api/getEvents', getEvents)
 app.post('/events', createEvent)
 app.delete('/api/deleteEvent/:id', deleteEvent)
+app.put('/api/updateEvent/:id', updateEvent)
 
 app.post('/updateAttendance', updateAttendance)
 

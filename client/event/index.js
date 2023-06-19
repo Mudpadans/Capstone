@@ -145,18 +145,21 @@ function showModal(events) {
 }
 
 function deleteEvent(eventId) {
-  fetch('http://localhost:4200/deleteEvent/${eventId}', {
+  fetch(`http://localhost:XXXX/deleteEvent/${eventId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json'
     },
+    body: JSON.stringify({
+      memberId: localStorage.getItem('memberId')
+    })
   })
   .then(response => response.json())
   .then(data => {
     console.log(data)
     var modal = document.getElementById("myModal");
     modal.style.display = "none";
-    let eventsDiv = document.getElementsById('event-calendar');
+    let eventsDiv = document.getElementById('event-calendar');
     eventsDiv.innerHTML = '';
     getEvents();
   })
@@ -167,16 +170,34 @@ function deleteEvent(eventId) {
 
 function updateEvent(eventId) {
   let updatedData = {
-
+    event_name: document.getElementById('event-name').value || 'Unknown',
+    event_date: document.getElementById('event-date').value || 'Unknown',
+    location: document.getElementById('location').value,
+    capacity: document.getElementById('capacity').value,
+    is_active: document.getElementById('is-active').value,
+    event_text: document.getElementById('event-text').value || ""
   }
 
-  fetch(`http://localhost:4200/updateEvent/${eventId}`, {
+  updatedData.memberId = localStorage.getItem('memberId')
+
+  fetch(`http://localhost:XXXX/updateEvent/${eventId}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json'
     },
+    body: JSON.stringify(updatedData)
   })
-  .then(response => response.json())
+  .then(response => {
+    if (!response.ok) {
+      if (response.status === 403) {
+        alert('You are not authorize to update this event.') 
+        throw new Error('403 Forbidden');
+      } else {
+        throw new Error('Network response was not ok')
+      }
+    }
+    response.json();
+  })
   .then(data => {
     console.log(data)
     var modal = document.getElementById("myModal");
