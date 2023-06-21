@@ -1,21 +1,25 @@
 const forumLink = document.getElementById("forum-link");
 const logoutLink = document.getElementById("logout-link")
-const modal = document.getElementById("myModal");
+const createModal = document.getElementById("createModal");
+// const updateModal = document.getElementById("updateModal")
 const form = document.getElementById("event-form");
 const createModalBtn = document.getElementById("create-modal-btn")
 const span = document.getElementsByClassName("close")[0];
 
 function getEvents() {
+  let memberId = localStorage.getItem('memberId')
+
   fetch('http://localhost:4200/api/getEvents', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
     },
   })
-  .then(response => response.json())
+  .then(response => response.json())  
   .then(data => {
     console.log(data);
     let eventsDiv = document.getElementById('event-calendar');
+    eventsDiv.innerHTML ='';
     data.forEach(events => {
       let eventDiv = document.createElement('div')
       eventDiv.classList.add('event')
@@ -27,7 +31,9 @@ function getEvents() {
 
       let goingButton = document.createElement('button')
       goingButton.classList.add('button')
-      goingButton.addEventListener('click', function() {
+      goingButton.addEventListener('click', function(event) {
+        event.stopPropagation();
+
         let status = true;
       
         let data = {
@@ -46,8 +52,6 @@ function getEvents() {
         .then(response => response.json())
         .then(data => {
           console.log(data)
-          eventsDiv.innerHTML = '';
-          getEvents();
         })
         .catch((error) => {
           console.error('Error:', error)
@@ -56,7 +60,9 @@ function getEvents() {
 
       let notGoingButton = document.createElement('button')
       notGoingButton.classList.add('button')
-      notGoingButton.addEventListener('click', function() {
+      notGoingButton.addEventListener('click', function(event) {
+        event.stopPropagation();
+
         let status = false;
       
         let data = {
@@ -75,8 +81,6 @@ function getEvents() {
         .then(response => response.json())
         .then(data => {
           console.log(data)
-          eventsDiv.innerHTML = '';
-          getEvents();
         })
         .catch((error) => {
           console.error('Error:', error)
@@ -112,10 +116,30 @@ function getEvents() {
       eventDiv.appendChild(buttonDiv);
       eventsDiv.appendChild(eventDiv);
 
-      eventDiv.addEventListener('click', function() {
-        showModal(events)
-      })
-      console.log(events)
+      console.log(`events.host_id: ${events.host_id}, memberId: ${memberId}`)
+
+      if (String(events.host_id) === String(memberId)) {
+        let deleteButton = document.createElement("button");
+        deleteButton.classList.add("button")
+        deleteButton.textContent = 'Delete'
+
+        let updateButton = document.createElement("button")
+        updateButton.classList.add("button")
+        updateButton.textContent = 'Update'
+
+        deleteButton.addEventListener('click', function(event) {
+          event.stopPropagation()
+          deleteEvent(events.event_id);
+        })
+
+        updateButton.addEventListener('click', function(event) {
+          event.stopPropagation()
+          updateEvent(events.event_id);
+        })
+
+        buttonDiv.appendChild(deleteButton)
+        buttonDiv.appendChild(updateButton)
+      }
     })
     
   })
@@ -126,46 +150,32 @@ function getEvents() {
 
 getEvents()
 
-function showModal(events) {
-  let eventName = document.getElementById("event-name")
-  eventName.value = events.event_name;
-
-  let deleteButton = document.getElementbyId("delete-button");
-  let updateButton = document.getElementById("update-button")
-
-  deleteButton.addEventListener('click', function() {
-    deleteEvent(events.event_id);
-  })
-
-  updateButton.addEventListener('click', function() {
-    updateEvent(events.event_id);
-  })
-
-  modal.style.display = "block"
-}
 
 function deleteEvent(eventId) {
-  fetch(`http://localhost:XXXX/deleteEvent/${eventId}`, {
+  const memberId = localStorage.getItem('memberId')
+  fetch(`http://localhost:4200/deleteEvent/${eventId}/${memberId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json'
-    },
+    }, 
     body: JSON.stringify({
       memberId: localStorage.getItem('memberId')
     })
   })
   .then(response => response.json())
   .then(data => {
+    if (data.status !== 'success') {
+      throw new Error(data.message || 'Network response was not ok')
+    }
     console.log(data)
-    var modal = document.getElementById("myModal");
-    modal.style.display = "none";
     let eventsDiv = document.getElementById('event-calendar');
     eventsDiv.innerHTML = '';
     getEvents();
+    console.log(eventId)
   })
   .catch((err) => {
-    console.error('Error:', error)
-  })
+    console.error('Error:', err)
+  });
 }
 
 function updateEvent(eventId) {
@@ -180,7 +190,7 @@ function updateEvent(eventId) {
 
   updatedData.memberId = localStorage.getItem('memberId')
 
-  fetch(`http://localhost:XXXX/updateEvent/${eventId}`, {
+  fetch(`http://localhost:4200/updateEvent/${eventId}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json'
@@ -200,8 +210,7 @@ function updateEvent(eventId) {
   })
   .then(data => {
     console.log(data)
-    var modal = document.getElementById("myModal");
-    modal.style.display = "none";
+    updateModal.style.display = "none";
     let eventsDiv = document.getElementById('event-calendar');
     eventsDiv.innerHTML = '';
     getEvents();
@@ -212,16 +221,16 @@ function updateEvent(eventId) {
 }
 
 createModalBtn.onclick = function() {
-  modal.style.display = "block";
+  createModal.style.display = "block";
 }
 
 span.onclick = function() {
-  modal.style.display = "none";
+  createModal.style.display = "none";
 }
 
 window.onclick = function(event) {
-  if (event.target == modal) {
-    modal.style.display = "none";
+  if (event.target == createModal) {
+    createModal.style.display = "none";
   }
 }
 
@@ -235,6 +244,8 @@ function createEvent (eName, eDate, location, capacity, isActive, eText) {
     eText: eText
   }
 
+  let memberId = localStorage.getItem('memberId')
+
   fetch('http://localhost:4200/events', {
     method: 'POST',
     headers: {
@@ -247,10 +258,11 @@ function createEvent (eName, eDate, location, capacity, isActive, eText) {
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
-    res.json();
+    return res.json();
   })
   .then(data => {
     console.log(data);
+    getEvents();
     let eventsDiv = document.getElementById('event-calendar');
     data.forEach(events => {
       let eventDiv = document.createElement('div')
@@ -282,8 +294,6 @@ function createEvent (eName, eDate, location, capacity, isActive, eText) {
         .then(response => response.json())
         .then(data => {
           console.log(data)
-          eventsDiv.innerHTML = '';
-          getEvents();
         })
         .catch((error) => {
           console.error('Error:', error)
@@ -311,8 +321,6 @@ function createEvent (eName, eDate, location, capacity, isActive, eText) {
         .then(response => response.json())
         .then(data => {
           console.log(data)
-          eventsDiv.innerHTML = '';
-          getEvents();
         })
         .catch((error) => {
           console.error('Error:', error)
@@ -329,7 +337,7 @@ function createEvent (eName, eDate, location, capacity, isActive, eText) {
         `Number of Guests: ${events.member_guests}`,
         `Capacity: ${events.maximum_capacity}`,
         `Is Active: ${events.is_active}`,
-        `Event Description ${events.event_text}`
+        `Event Description: ${events.event_text}`
       ];
 
       eventProperties.forEach(property => {
@@ -348,11 +356,36 @@ function createEvent (eName, eDate, location, capacity, isActive, eText) {
       eventDiv.appendChild(buttonDiv);
       eventsDiv.appendChild(eventDiv);
     })
+
+    if (events.host_id === memberId) {
+      let deleteButton = document.createElement("button");
+      deleteButton.classList.add("button")
+      deleteButton.textContent = 'delete'
+
+      let updateButton = document.createElement("button")
+      updateButton.classList.add("button")
+      updateButton.textContent = 'update'
+
+      deleteButton.addEventListener('click', function(event) {
+        event.stopPropagation()
+        deleteEvent(events.event_id);
+      })
+
+      updateButton.addEventListener('click', function(event) {
+        event.stopPropagation()
+        updateEvent(events.event_id);
+      })
+
+      buttonDiv.appendChild(deleteButton)
+      buttonDiv.appendChild(updateButton)
+    }
+  })
+
   .catch((error) => {
     console.error('Error:', error);
   })
-})
 }
+
  
 form.addEventListener('submit', function(event) {
   event.preventDefault();
@@ -366,9 +399,6 @@ form.addEventListener('submit', function(event) {
 
   createEvent (eName, eDate, location, capacity, isActive, eText);
 })
-
-
-
 
 
 window.addEventListener('load', (event) => {
@@ -388,4 +418,6 @@ logoutLink.addEventListener('click', (event) => {
       window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/landing/index.html";
       }
   })
+
+
 

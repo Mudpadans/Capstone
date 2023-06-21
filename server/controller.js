@@ -257,7 +257,10 @@ module.exports = {
                 model: Member,
                 attributes: ['first_name']
               },
-            ],
+            ], 
+            order: [
+              ['event_id', 'ASC']
+            ]
           });
           res.json(events);
           console.log(events)
@@ -332,18 +335,18 @@ module.exports = {
     },
 
     deleteEvent: async (req, res) => {
-      const { id } = req.params
-      const memberId = req.body.memberId;
-
+      const { id, memberId} = req.params
+      console.log(`Attempting to delete event. ID: ${id}, Member ID: ${memberId}`);
       try {
         const event = await sequelize.models.Event.findOne({
           where: {
             event_id: id,
           },
         })
-
+        console.log(event)
         if (event) {
-          if (event.host_id === memberId) {
+          console.log(String(event.event_id))
+          if (String(event.host_id) === String(memberId)) {
             await event.destroy()
             res.status(200).json({
               status: 'success',
@@ -352,7 +355,7 @@ module.exports = {
               }
             })
           } else {
-            res.staus(403).json({
+            res.status(403).json({
               status: 'error',
               message: 'You are not authorized to delete this event.',
             })
