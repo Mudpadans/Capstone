@@ -52,6 +52,7 @@ function getEvents() {
         .then(response => response.json())
         .then(data => {
           console.log(data)
+          getEvents();
         })
         .catch((error) => {
           console.error('Error:', error)
@@ -81,6 +82,7 @@ function getEvents() {
         .then(response => response.json())
         .then(data => {
           console.log(data)
+          getEvents();
         })
         .catch((error) => {
           console.error('Error:', error)
@@ -152,9 +154,9 @@ getEvents()
 
 
 function deleteEvent(eventId) {
-  const memberId = localStorage.getItem('memberId')
-  fetch(`http://localhost:4200/deleteEvent/${eventId}/${memberId}`, {
-    method: 'DELETE',
+  console.log("front end: deleteEvent()")
+  console.log(eventId)
+  axios.delete(`http://localhost:4200/events/${eventId}`, {
     headers: {
       'Content-Type': 'application/json'
     }, 
@@ -162,21 +164,23 @@ function deleteEvent(eventId) {
       memberId: localStorage.getItem('memberId')
     })
   })
-  .then(response => response.json())
-  .then(data => {
-    if (data.status !== 'success') {
-      throw new Error(data.message || 'Network response was not ok')
+  
+  .then(res => { 
+    getEvents();
+    if (res.status !== 'success') {
+      throw new Error(res.message || 'Network response was not ok')
     }
-    console.log(data)
+    console.log(res.data)
     let eventsDiv = document.getElementById('event-calendar');
     eventsDiv.innerHTML = '';
-    getEvents();
+    
     console.log(eventId)
   })
   .catch((err) => {
     console.error('Error:', err)
   });
 }
+
 
 function updateEvent(eventId) {
   let updatedData = {
@@ -190,15 +194,14 @@ function updateEvent(eventId) {
 
   updatedData.memberId = localStorage.getItem('memberId')
 
-  fetch(`http://localhost:4200/updateEvent/${eventId}`, {
-    method: 'PUT',
+  fetch(`http://localhost:4200/updateEvent/${eventId}`, updatedData, {
     headers: {
       'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(updatedData)
+    }
   })
   .then(response => {
-    if (!response.ok) {
+    const data = response.data
+    if (data.status !== 'success') {
       if (response.status === 403) {
         alert('You are not authorize to update this event.') 
         throw new Error('403 Forbidden');
@@ -206,11 +209,7 @@ function updateEvent(eventId) {
         throw new Error('Network response was not ok')
       }
     }
-    response.json();
-  })
-  .then(data => {
     console.log(data)
-    updateModal.style.display = "none";
     let eventsDiv = document.getElementById('event-calendar');
     eventsDiv.innerHTML = '';
     getEvents();
@@ -418,6 +417,9 @@ logoutLink.addEventListener('click', (event) => {
       window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/landing/index.html";
       }
   })
+
+
+
 
 
 

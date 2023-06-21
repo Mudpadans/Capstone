@@ -117,7 +117,7 @@ module.exports = {
           event_name varchar(50),
           event_date date null,
           event_creation_date date,
-          host_id int references members(member_id),
+          host_id int references members(member_id) ON DELETE CASCADE,
           location varchar(50) null,
           member_guests int null,
           maximum_capacity int,
@@ -126,8 +126,8 @@ module.exports = {
         );
 
         create table attendance (
-          member_id int references members(member_id),
-          event_id int references events(event_id),
+          member_id int references members(member_id) ON DELETE CASCADE,
+          event_id int references events(event_id) ON DELETE CASCADE,
           status boolean,
           primary key (member_id, event_id)
         );
@@ -136,15 +136,15 @@ module.exports = {
           discussion_id serial primary key,
           discussion_name varchar(30),
           discussion_text text,
-          author_id int references members(member_id),
+          author_id int references members(member_id) ON DELETE CASCADE,
           date_posted date,
           is_active boolean
           );
 
         create table comments (
           comment_id serial primary key,
-          author_id int references members(member_id),
-          discussion_id int references discussions(discussion_id),
+          author_id int references members(member_id) ON DELETE CASCADE,
+          discussion_id int references discussions(discussion_id) ON DELETE CASCADE,
           comment text,
           date_posted date,
           is_active boolean
@@ -335,44 +335,14 @@ module.exports = {
     },
 
     deleteEvent: async (req, res) => {
-      const { id, memberId} = req.params
-      console.log(`Attempting to delete event. ID: ${id}, Member ID: ${memberId}`);
-      try {
-        const event = await sequelize.models.Event.findOne({
-          where: {
-            event_id: id,
-          },
-        })
-        console.log(event)
-        if (event) {
-          console.log(String(event.event_id))
-          if (String(event.host_id) === String(memberId)) {
-            await event.destroy()
-            res.status(200).json({
-              status: 'success',
-              data: {
-                rows_deleted: 1,
-              }
-            })
-          } else {
-            res.status(403).json({
-              status: 'error',
-              message: 'You are not authorized to delete this event.',
-            })
-          }
-        } else {
-          res.status(404).json({
-            status: 'error',
-            message: 'No event found with the provided id'
-          })
-        }
-      } catch (err) {
-        console.error(err)
-        res.status(500).json({
-          status: 'error',
-          error: err
-        })
-      }
+      const { id } = req.params
+      sequelize.query(`DELETE from events 
+      WHERE event_id = ${id}`)
+
+      .then(dbrs => res.status(200).send(dbrs[0]))
+      .catch(err => {
+        console.log(err)
+      }) 
     },
 
     updateEvent: async (req, res) => {
@@ -382,23 +352,29 @@ module.exports = {
 
       delete updatedData.memberId;
 
-      const event = await sequelize.models.Event.findOne({
-        where: {
-          event_id: id
+      let updates = Object.keys(updatedData).map(key => `${key} = '${updatedData[key]}'`).join(', ')
+
+      sequelize.query(`
+      UPDATE events
+      SET ${updates}
+      WHERE event_id = :eventId AND author_id = :authorId`,
+      {
+        replacements: {
+          eventId: id,
+          authorId: memberId,
         }
       })
-
-      if (event) {
-        if(event.author_id === memberId) {
-          event.update(updatedData).then(updatedEvent => {
-            res.json(updatedEvent)
-          })
+      .then(([res, metadata]) => {
+        if (metadata.affectedRows === 0) {
+          res.status(404).json({ error: 'Event not found or you are not authorized to update this event.' })
         } else {
-          res.status(403).json({ error: 'You are not authorized to update this event.' })
+          res.json({ message: 'Event updated successfully', data: updatedData })
         }
-      } else {
-        res.status(404).json({ error: 'Event not found.' })
-      }
+      })
+      .catch(err => {
+        console.log(err)
+        res.status(500).json({ error: 'Error updating event' })
+      })
     },
 
     Discussion,

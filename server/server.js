@@ -24,7 +24,7 @@ app.post('/authenticateMember', authenticateMember)
 
 app.get('/api/getEvents', getEvents)
 app.post('/events', createEvent)
-app.delete('/api/deleteEvent/:id/:memberId', deleteEvent)
+app.delete('/events/:id', deleteEvent)
 app.put('/api/updateEvent/:id', updateEvent)
 
 app.post('/updateAttendance', updateAttendance)
