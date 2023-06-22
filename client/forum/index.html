@@ -44,11 +44,16 @@
     </div>
 
     <div id="commentModal" class="modal">
-        <div class="comment-modal">
+        <div id="comment-close" class="comment-modal">
             <span class="close">&times;</span>
             <section id="comment-section">
                 
             </section>
+            <form id="comment-form">
+                <input type="text" id="comment-input" name="comment-input" placeholder="Comment Here" required/>
+
+                <button for="comment-btn" id="comment-btn">Submit Comment</button>
+            </form>
         </div>
     </div>
 

@@ -4,10 +4,13 @@ const eventLink = document.getElementById("event-link");
 const logoutLink = document.getElementById("logout-link")
 const createModal = document.getElementById("createModal")
 const commentModal = document.getElementById("commentModal")
-const form = document.getElementById("discussion-form");
+const discussionForm = document.getElementById("discussion-form");
+const commentForm = document.getElementById("comment-form")
 const createModalBtn = document.getElementById("create-modal-btn")
 const span = document.getElementsByClassName("close")[0];
+const commentClose = document.getElementById('comment-close');
 
+let currentDiscussionId; 
 
 function getDiscussions() {
 let memberId = localStorage.getItem('memberId')
@@ -35,7 +38,8 @@ let memberId = localStorage.getItem('memberId')
       let reply = document.createElement('button')
       reply.classList.add('button')
       reply.addEventListener('click', function(event) {
-        commentModal.style.display = "block"
+        commentModal.style.display = "block";
+        currentDiscussionId = discussions.discussion_id;
         let commentList = document.getElementById('comment-section')
         commentList.innerHTML = '';
         axios.get(`http://localhost:4200/api/discussions/${discussions.discussion_id}/comments`, {
@@ -101,8 +105,8 @@ let memberId = localStorage.getItem('memberId')
           document.getElementById('discussion-text').value = discussions.discussion_text;
           document.getElementById('is-active').value = discussions.is_active;
 
-          form.removeEventListener('submit', createDiscussionHandler);
-          form.onsubmit = function(event) {
+          discussionForm.removeEventListener('submit', createDiscussionHandler);
+          discussionForm.onsubmit = function(event) {
             event.preventDefault()
             updateDiscussion(discussions.discussion_id)
           }
@@ -116,6 +120,9 @@ let memberId = localStorage.getItem('memberId')
         buttonDiv.appendChild(updateButton)
       }
     })
+
+    commentForm.addEventListener('submit', createCommentHandler)
+
   })
   .catch((error) => {
     console.error('Error:', error)
@@ -182,14 +189,19 @@ createModalBtn.onclick = function() {
 }
 
 span.onclick = function() {
-  form.removeEventListener('submit', updateDiscussionHandler)
-  form.addEventListener('submit', createDiscussionHandler)
+  discussionForm.removeEventListener('submit', updateDiscussionHandler)
+  discussionForm.addEventListener('submit', createDiscussionHandler)
   createModal.style.display = "none";
 }
 
+commentClose.onclick = function() {
+  commentModal.style.display = "none";
+}
+
 window.onclick = function(event) {
-  if (event.target == createModal) {
+  if (event.target == createModal || event.target == commentModal) {
     createModal.style.display = "none";
+    commentModal.style.display = "none";
   }
 }
 
@@ -241,7 +253,38 @@ function updateDiscussionHandler(event) {
   updateDiscussion(discussionId)
 }
 
-form.addEventListener('submit', createDiscussionHandler)
+discussionForm.addEventListener('submit', createDiscussionHandler)
+
+function createComment(discussion_id, author_id, commentText) {
+  axios.post(`http://localhost:4200/api/discussions/${discussion_id}/comments`, {
+    author_id: author_id,
+    comment: commentText
+  }, {
+    headers: {
+      'Content-Type': 'application/json',
+      'x-member-id': localStorage.getItem('memberId')
+    }
+  })
+  .then(response => {
+    console.log(response.data)
+  })
+  .catch((err) => {
+    console.error('Error:', err)
+  })
+}
+
+function createCommentHandler(event) {
+  event.preventDefault();
+
+  let commentText = document.getElementById('comment-input').value;
+  let discussion_id = currentDiscussionId;
+  let author_id = localStorage.getItem('memberId');
+
+  createComment(discussion_id, author_id, commentText)
+
+  document.getElementById('comment-input').value =  ''
+}
+
 
 window.addEventListener('load', (event) => {
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
