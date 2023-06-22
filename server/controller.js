@@ -82,13 +82,39 @@ const Attendance = sequelize.define('attendance', {
   freezeTableName: true,
 })
 
+const Comment = sequelize.define('comment', {
+  comment_id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
+  },
+  author_id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true
+  },
+  discussion_id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true
+  },
+  comment: DataTypes.TEXT,
+  date_posted: DataTypes.DATE
+})
+
 Event.belongsTo(Member, {foreignKey: 'host_id'});
 Member.hasMany(Event, {foreignKey: 'host_id'});
 
 Member.hasMany(Attendance, { foreignKey: 'member_id' });
-Attendance.belongsTo(Member, { foreignKey: 'member_id' })
+Attendance.belongsTo(Member, { foreignKey: 'member_id' });
 Event.hasMany(Attendance, { foreignKey: 'event_id' });
-Attendance.belongsTo(Event, { foreignKey: 'event_id' })
+Attendance.belongsTo(Event, { foreignKey: 'event_id' });
+
+Discussion.belongsTo(Member, {foreignKey: 'author_id'})
+Member.hasMany(Discussion, {foreignKey: 'author_id'})
+
+Member.hasMany(Comment, { foreignKey: 'member_id' });
+Comment.belongsTo(Member, { foreignKey: 'member_id' });
+Discussion.hasMany(Comment, { foreignKey: 'discussion_id' });
+Comment.belongsTo(Discussion, { foreignKey: 'discussion_id' });
 
 module.exports = {
   seed: (req, res) => {
@@ -146,8 +172,7 @@ module.exports = {
           author_id int references members(member_id) ON DELETE CASCADE,
           discussion_id int references discussions(discussion_id) ON DELETE CASCADE,
           comment text,
-          date_posted date,
-          is_active boolean
+          date_posted date
           );
 
         insert into members (first_name, last_name, date_of_birth, address, date_joined, role, membership_status, email, phone_number)
@@ -307,6 +332,8 @@ module.exports = {
         })
     },
 
+    Attendance,
+
     updateAttendance: async (req, res) => {
       let { memberId, eventId, status } = req.body;
 
@@ -357,14 +384,15 @@ module.exports = {
       sequelize.query(`
       UPDATE events
       SET ${updates}
-      WHERE event_id = :eventId AND author_id = :authorId`,
+      WHERE event_id = :eventId AND host_id = :hostId`,
       {
         replacements: {
           eventId: id,
-          authorId: memberId,
+          hostId: memberId,
         }
       })
-      .then(([res, metadata]) => {
+      .then(([results, metadata]) => {
+        console.log(results)
         if (metadata.affectedRows === 0) {
           res.status(404).json({ error: 'Event not found or you are not authorized to update this event.' })
         } else {
@@ -381,7 +409,17 @@ module.exports = {
 
     getDiscussions: async (req, res) => {
       try {
-        const discussions = await Discussion.findAll();
+        const discussions = await Discussion.findAll({
+          include: [
+            {
+              model: Member, 
+              attributes: ['first_name']
+            },
+          ],
+          order: [
+            ['discussion_id', 'ASC']
+          ]
+        });
         res.json(discussions);
     } catch (err) {
         console.log(err);
@@ -391,11 +429,12 @@ module.exports = {
 
   createDiscussion: (req, res) => {
     let {dName, dText, isActive} = req.body;
+
     let date_posted = new Date().toISOString().split('T')[0];
     let author_id = req.headers['x-member-id'];
 
     sequelize.query(`INSERT INTO discussions (discussion_name, discussion_text, author_id, date_posted, is_active)
-    VALUES (:discussion_name, :discussion_text, :author_id, :date_posted, :is_active,)`, {
+    VALUES (:discussion_name, :discussion_text, :author_id, :date_posted, :is_active)`, {
       replacements: {
         discussion_name: dName,
         discussion_text: dText,
@@ -413,4 +452,64 @@ module.exports = {
         res.status(500).json({error: "Error creating new discussion"})
       })
   },
+
+  deleteDiscussion: async (req, res) => {
+    const { id } = req.params
+    sequelize.query(`DELETE from discussions 
+    WHERE discussion_id = ${id}`)
+
+    .then(dbrs => res.status(200).send(dbrs[0]))
+    .catch(err => {
+      console.log(err)
+    }) 
+  },
+
+  updateDiscussion: async (req, res) => {
+    const { id } = req.params;
+    const updatedData = req.body;
+    const memberId = updatedData.memberId;
+
+    delete updatedData.memberId;
+
+    let updates = Object.keys(updatedData).map(key => `${key} = '${updatedData[key]}'`).join(', ')
+
+    sequelize.query(`
+    UPDATE discussions
+    SET ${updates}
+    WHERE discussion_id = :discussionId AND author_id = :authorId`,
+    {
+      replacements: {
+        discussionId: id,
+        authorId: memberId,
+      }
+    })
+    .then(([results, metadata]) => {
+      console.log(results)
+      if (metadata.affectedRows === 0) {
+        res.status(404).json({ error: 'Discussion not found or you are not authorized to update this discussion.' })
+      } else {
+        res.json({ message: 'Discussion updated successfully', data: updatedData })
+      }
+    })
+    .catch(err => {
+      console.log(err)
+      res.status(500).json({ error: 'Error updating discussion' })
+    })
+  },
+
+  Comment,
+
+  getComments: (req, res) => {
+    Comment.findAll({
+      where: {
+        discussion_id: req.params.id
+      },
+      include: {
+        model: Member,
+        attributes: ['first_name', "last_name"],
+      }
+    })
+    .then(comments => res.json(comments))
+    .catch(err => res.status(500).json({ error: err.message }))
+  }
 }

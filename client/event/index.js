@@ -1,7 +1,6 @@
 const forumLink = document.getElementById("forum-link");
 const logoutLink = document.getElementById("logout-link")
 const createModal = document.getElementById("createModal");
-// const updateModal = document.getElementById("updateModal")
 const form = document.getElementById("event-form");
 const createModalBtn = document.getElementById("create-modal-btn")
 const span = document.getElementsByClassName("close")[0];
@@ -19,7 +18,7 @@ function getEvents() {
   .then(data => {
     console.log(data);
     let eventsDiv = document.getElementById('event-calendar');
-    eventsDiv.innerHTML ='';
+    eventsDiv.innerHTML = '';
     data.forEach(events => {
       let eventDiv = document.createElement('div')
       eventDiv.classList.add('event')
@@ -136,9 +135,25 @@ function getEvents() {
 
         updateButton.addEventListener('click', function(event) {
           event.stopPropagation()
-          updateEvent(events.event_id);
-        })
 
+          document.getElementById('event-name').value = events.event_name;
+          document.getElementById('event-date').value = events.event_date;
+          document.getElementById('location').value = events.location;
+          document.getElementById('capacity').value = events.capacity;
+          document.getElementById('is-active').value = events.is_active;
+          document.getElementById('event-text').value = events.event_text;
+
+          form.removeEventListener('submit', createEventHandler);
+          form.onsubmit = function(event) {
+            event.preventDefault()
+            updateEvent(events.event_id)
+          }
+          
+
+          createModal.style.display = "block";
+        })
+        
+  
         buttonDiv.appendChild(deleteButton)
         buttonDiv.appendChild(updateButton)
       }
@@ -184,35 +199,29 @@ function deleteEvent(eventId) {
 
 function updateEvent(eventId) {
   let updatedData = {
+    memberId: localStorage.getItem('memberId'),
     event_name: document.getElementById('event-name').value || 'Unknown',
     event_date: document.getElementById('event-date').value || 'Unknown',
     location: document.getElementById('location').value,
-    capacity: document.getElementById('capacity').value,
+    maximum_capacity: document.getElementById('capacity').value,
     is_active: document.getElementById('is-active').value,
     event_text: document.getElementById('event-text').value || ""
   }
 
   updatedData.memberId = localStorage.getItem('memberId')
 
-  fetch(`http://localhost:4200/updateEvent/${eventId}`, updatedData, {
+  axios.put(`http://localhost:4200/events/${eventId}`, updatedData, {
     headers: {
       'Content-Type': 'application/json'
     }
   })
   .then(response => {
     const data = response.data
-    if (data.status !== 'success') {
-      if (response.status === 403) {
-        alert('You are not authorize to update this event.') 
-        throw new Error('403 Forbidden');
-      } else {
-        throw new Error('Network response was not ok')
-      }
-    }
     console.log(data)
     let eventsDiv = document.getElementById('event-calendar');
     eventsDiv.innerHTML = '';
     getEvents();
+    createModal.style.display = "none"
   })
   .catch((error) => {
     console.error('Error:', error)
@@ -224,6 +233,8 @@ createModalBtn.onclick = function() {
 }
 
 span.onclick = function() {
+  form.removeEventListener('submit', updateEventHandler)
+  form.addEventListener('submit', createEventHandler)
   createModal.style.display = "none";
 }
 
@@ -243,8 +254,6 @@ function createEvent (eName, eDate, location, capacity, isActive, eText) {
     eText: eText
   }
 
-  let memberId = localStorage.getItem('memberId')
-
   fetch('http://localhost:4200/events', {
     method: 'POST',
     headers: {
@@ -262,131 +271,13 @@ function createEvent (eName, eDate, location, capacity, isActive, eText) {
   .then(data => {
     console.log(data);
     getEvents();
-    let eventsDiv = document.getElementById('event-calendar');
-    data.forEach(events => {
-      let eventDiv = document.createElement('div')
-      eventDiv.classList.add('event')
-      let buttonDiv = document.createElement('div')
-      buttonDiv.classList.add('button-div')
-
-      let h2 = document.createElement('h2');
-      let ul = document.createElement('ul');
-
-      let goingButton = document.createElement('button')
-      goingButton.classList.add('button')
-      goingButton.addEventListener('click', function() {
-        let status = true;
-      
-        let data = {
-          memberId: localStorage.getItem('memberId'), 
-          eventId: events.event_id,
-          status: status
-        };
-      
-        fetch('http://localhost:4200/updateAttendance', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-          console.log(data)
-        })
-        .catch((error) => {
-          console.error('Error:', error)
-        })
-      })
-
-      let notGoingButton = document.createElement('button')
-      notGoingButton.classList.add('button')
-      notGoingButton.addEventListener('click', function() {
-        let status = false;
-      
-        let data = {
-          memberId: localStorage.getItem('memberId'), 
-          eventId: events.event_id,
-          status: status
-        };
-      
-        fetch('http://localhost:4200/updateAttendance', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-          console.log(data)
-        })
-        .catch((error) => {
-          console.error('Error:', error)
-        })
-      })
-      
-      h2.textContent = `Event: ${events.event_name}`;
-      
-      let eventProperties = [
-        `Date: ${events.event_date}`,
-        `Location: ${events.location}`,
-        `Event Posted: ${events.event_creation_date}`,
-        `Hosted By: ${events.members ? events.members.first_name : 'Unknown'}`,
-        `Number of Guests: ${events.member_guests}`,
-        `Capacity: ${events.maximum_capacity}`,
-        `Is Active: ${events.is_active}`,
-        `Event Description: ${events.event_text}`
-      ];
-
-      eventProperties.forEach(property => {
-        let li = document.createElement('li');
-        li.textContent = property;
-        ul.appendChild(li);
-      })
-      
-      goingButton.textContent = "Going?"
-      notGoingButton.textContent = "Not Going?"
-
-      eventDiv.appendChild(h2);
-      eventDiv.appendChild(ul);
-      buttonDiv.appendChild(goingButton);
-      buttonDiv.appendChild(notGoingButton);
-      eventDiv.appendChild(buttonDiv);
-      eventsDiv.appendChild(eventDiv);
-    })
-
-    if (events.host_id === memberId) {
-      let deleteButton = document.createElement("button");
-      deleteButton.classList.add("button")
-      deleteButton.textContent = 'delete'
-
-      let updateButton = document.createElement("button")
-      updateButton.classList.add("button")
-      updateButton.textContent = 'update'
-
-      deleteButton.addEventListener('click', function(event) {
-        event.stopPropagation()
-        deleteEvent(events.event_id);
-      })
-
-      updateButton.addEventListener('click', function(event) {
-        event.stopPropagation()
-        updateEvent(events.event_id);
-      })
-
-      buttonDiv.appendChild(deleteButton)
-      buttonDiv.appendChild(updateButton)
-    }
   })
-
   .catch((error) => {
     console.error('Error:', error);
   })
 }
 
- 
-form.addEventListener('submit', function(event) {
+function createEventHandler(event) {
   event.preventDefault();
 
   let eName = document.getElementById('event-name').value;
@@ -396,8 +287,19 @@ form.addEventListener('submit', function(event) {
   let isActive = document.getElementById('is-active').checked;
   let eText = document.getElementById('event-text').value;
 
-  createEvent (eName, eDate, location, capacity, isActive, eText);
-})
+  createEvent(eName,eDate,location, capacity, isActive, eText);
+}
+
+function updateEventHandler(event) {
+  event.preventDefault();
+
+  let eventId = this.dataset.eventId;
+  updateEvent(eventId);
+}
+
+ 
+form.addEventListener('submit', createEventHandler)
+
 
 
 window.addEventListener('load', (event) => {

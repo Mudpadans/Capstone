@@ -3,7 +3,7 @@ const cors = require("cors");
 require("dotenv").config()
 const path = require('path')
 const { PORT } = process.env;
-const { seed, createMember, authenticateMember, getEvents, createEvent, deleteEvent, updateEvent, getDiscussions, createDiscussion, updateAttendance } = require('./controller.js')
+const { seed, createMember, authenticateMember, getEvents, createEvent, deleteEvent, updateEvent, getDiscussions, createDiscussion, updateAttendance, deleteDiscussion, updateDiscussion, getComments } = require('./controller.js')
 
 const app = express();
 
@@ -25,11 +25,15 @@ app.post('/authenticateMember', authenticateMember)
 app.get('/api/getEvents', getEvents)
 app.post('/events', createEvent)
 app.delete('/events/:id', deleteEvent)
-app.put('/api/updateEvent/:id', updateEvent)
+app.put('/events/:id', updateEvent)
 
 app.post('/updateAttendance', updateAttendance)
 
 app.get('/api/getDiscussions', getDiscussions)
 app.post('/discussions', createDiscussion)
+app.delete('/discussions/:id', deleteDiscussion)
+app.put('/discussions/:id', updateDiscussion)
+
+app.get('/discussions/:id/comments', getComments)
 
 app.listen(PORT, () => console.log(`server running on ${PORT}`))
