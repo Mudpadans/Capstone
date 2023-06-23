@@ -12,6 +12,8 @@ const commentClose = document.getElementById('comment-close');
 
 let currentDiscussionId; 
 
+let replyButtons = []
+
 function getDiscussions() {
 let memberId = localStorage.getItem('memberId')
 
@@ -40,24 +42,7 @@ let memberId = localStorage.getItem('memberId')
       reply.addEventListener('click', function(event) {
         commentModal.style.display = "block";
         currentDiscussionId = discussions.discussion_id;
-        let commentList = document.getElementById('comment-section')
-        commentList.innerHTML = '';
-        axios.get(`http://localhost:4200/api/discussions/${discussions.discussion_id}/comments`, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-        .then(response => {
-          let comments = response.data;
-          comments.forEach(comment => {
-            let p = document.createElement('p');
-            p.textContent = comment.comment;
-            commentList.appendChild(p);
-          })
-        })
-        .catch((err) => {
-          console.error('Error:', err)
-        })
+        getComments(currentDiscussionId)
       })
       
       h2.textContent = `Discussion: ${discussions.discussion_name}`;
@@ -76,6 +61,7 @@ let memberId = localStorage.getItem('memberId')
       })
       
       reply.textContent = "Reply"
+      replyButtons.push(reply)
 
       buttonDiv.appendChild(reply)
 
@@ -184,6 +170,10 @@ function deleteDiscussion(discussionId) {
     })
   }
 
+document.getElementById('comment-input').addEventListener('click', function(event) {
+  event.stopPropagation();
+});
+
 createModalBtn.onclick = function() {
   createModal.style.display = "block";
 }
@@ -199,8 +189,13 @@ commentClose.onclick = function() {
 }
 
 window.onclick = function(event) {
-  if (event.target == createModal || event.target == commentModal) {
+  if (!createModal.contains(event.target) && event.target != createModalBtn) {
     createModal.style.display = "none";
+  }
+  
+  let isReplyButtonClicked = replyButtons.some(button => button === event.target);
+
+  if (!commentModal.contains(event.target) && !isReplyButtonClicked) {
     commentModal.style.display = "none";
   }
 }
@@ -255,10 +250,42 @@ function updateDiscussionHandler(event) {
 
 discussionForm.addEventListener('submit', createDiscussionHandler)
 
-function createComment(discussion_id, author_id, commentText) {
-  axios.post(`http://localhost:4200/api/discussions/${discussion_id}/comments`, {
+function getComments(discussionId) {
+  let commentList = document.getElementById('comment-section')
+  commentList.innerHTML = '';
+  let memberId = localStorage.getItem('memberId')
+
+  axios.get(`http://localhost:4200/api/discussions/${discussionId}/comments`, {
+    headers: {
+    'Content-Type': 'application/json'
+    }
+  })
+  .then(response => {
+    console.log(response.data)
+    let comments = response.data;
+    comments.forEach(comment => {
+      let p = document.createElement('p');
+      p.textContent = `${comment.first_name}: ${comment.comment}`
+
+      if (parseInt(comment.author_id) === parseInt(memberId)) {
+        p.style.cursor = "pointer";
+        p.title = "Click to delete";
+        p.addEventListener('click', () => deleteComment(comment, discussionId));
+      }
+
+      commentList.appendChild(p);
+    })
+  })
+  .catch((err) => {
+    console.error('Error:', err)
+  })
+}
+
+function createComment(discussion_id, author_id, comment) {
+  axios.post(`http://localhost:4200/discussions/${discussion_id}/comments`, {
     author_id: author_id,
-    comment: commentText
+    discussionId: discussion_id,
+    commentText: comment,
   }, {
     headers: {
       'Content-Type': 'application/json',
@@ -285,6 +312,22 @@ function createCommentHandler(event) {
   document.getElementById('comment-input').value =  ''
 }
 
+function deleteComment(comment, discussionId) {
+  console.log(`Deleting comment: ${comment.comment_id}, from discussion: ${discussionId}`);
+  axios.delete(`http://localhost:4200/discussions/${discussionId}/comments/${comment.comment_id}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'x-member-id': localStorage.getItem('memberId')
+    }
+  })
+  .then(res => {
+    getComments(discussionId);
+    console.log(res.data)
+  })
+  .catch((err) => {
+    console.error('Error:', err)
+  });
+}
 
 window.addEventListener('load', (event) => {
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';

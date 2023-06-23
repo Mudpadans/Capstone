@@ -89,12 +89,10 @@ const Comment = sequelize.define('comment', {
     primaryKey: true
   },
   author_id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true
+    type: DataTypes.INTEGER
   },
   discussion_id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true
+    type: DataTypes.INTEGER
   },
   comment: DataTypes.TEXT,
   date_posted: DataTypes.DATE
@@ -500,16 +498,77 @@ module.exports = {
   Comment,
 
   getComments: (req, res) => {
-    Comment.findAll({
-      where: {
-        discussion_id: req.params.id
-      },
-      include: {
-        model: Member,
-        attributes: ['first_name', "last_name"],
+    const discussionId = req.params.id
+    console.log(`${discussionId}`)
+    sequelize.query(
+      `SELECT comments.*, members.first_name
+      FROM comments
+      LEFT JOIN members ON comments.author_id = members.member_id
+      WHERE comments.discussion_id = :discussionId`,
+      {
+        replacements: { discussionId: discussionId },
+        type: sequelize.QueryTypes.SELECT
       }
-    })
+    )
     .then(comments => res.json(comments))
     .catch(err => res.status(500).json({ error: err.message }))
+  },
+
+  createComment: (req, res) => {
+    let {discussionId, commentText} = req.body
+
+    let author_id = req.headers['x-member-id'];
+    let date_posted = new Date().toISOString().split('T')[0];
+
+    sequelize.query(`INSERT INTO comments (author_id, discussion_id, comment, date_posted)
+    VALUES (:author_id, :discussion_id, :comment, :date_posted)`, {
+      replacements: {
+        author_id: author_id, 
+        discussion_id: discussionId,
+        comment: commentText,
+        date_posted: date_posted
+      }
+    })
+    .then(() => {
+      console.log('New comment created!')
+      res.status(200).json({message: 'New comment created'})
+    })
+    .catch(err => {
+      console.log("Error creating new comment", err)
+      res.status(500).json({error: "Error creating new comment"})
+    })
+  },
+
+  deleteComment: (req, res) => {
+    console.log(`Received delete request for comment: ${req.params.commentId}, from member: ${req.headers['x-member-id']}`)
+    let { discussionId, commentId } = req.params;
+    console.log(commentId)
+    let authorId = req.headers['x-member-id'];
+
+
+    sequelize.query(`SELECT * FROM comments WHERE comment_id = :commentId`, { replacements: { commentId }, type: sequelize.QueryTypes.SELECT })
+      .then(comment => {
+        if (comment.length === 0) {
+          return res.status(404).json({ error: "Comment not found." })
+        }
+        if (comment[0].author_id.toString() !== authorId) {
+          return res.status(403).json({ error: "You're not allowed to delete this comment." })
+        }
+        console.log('Author Id:', authorId, typeof authorId);
+        console.log('Comment Author Id:', comment[0].author_id, typeof comment[0].author_id);
+        sequelize.query(`DELETE FROM comments WHERE comment_id = :commentId`, { replacements: { commentId } })
+          .then(() => {
+            console.log('Comment deleted')
+            res.status(200).json({ message: 'Comment deleted' })
+          })
+          .catch(err => {
+            console.error("Error deleting comment", err)
+            res.status(500).json({ error: "Error deleting comment" })
+          })
+      })
+      .catch(err => {
+        console.error("Error fetching comment", err)
+        res.status(500).json({ error: "Error fetching comment" })
+      })
   }
 }
