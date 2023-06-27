@@ -8,4 +8,10 @@ This website has three main features which include a signup-login form, an event
 
 Screenshots
 
+Landing Page
+
 <img src="Screenshot 2023-06-27 at 15.07.50.png" alt="landing-page"/>
+
+Signup Page
+
+<img src="" alt="signup-page"/>
