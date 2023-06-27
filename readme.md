@@ -15,3 +15,11 @@ Landing Page
 Signup Page
 
 <img src="Screenshot 2023-06-27 at 15.08.00.png" alt="signup-page"/>
+
+Event Page
+
+<img src="Screenshot 2023-06-27 at 16.05.13.png" alt="event-page"/>
+
+Discussion page 
+
+<img src="Screenshot 2023-06-27 at 16.05.19.png" alt="discussion-page"/>
