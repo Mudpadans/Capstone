@@ -8,4 +8,4 @@ This website has three main features which include a signup-login form, an event
 
 Screenshots
 
-<img src=""/>
+<img src=" "/>
