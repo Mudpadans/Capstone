@@ -332,9 +332,9 @@ function deleteComment(comment, discussionId) {
 window.addEventListener('load', (event) => {
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
   if (isLoggedIn) {
-      eventLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/event/index.html";
+      eventLink.href = "/client/event/index.html";
   } else {
-      eventLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
+      eventLink.href = "/client/sign-up/index.html";
   }
 })
 
@@ -343,6 +343,6 @@ logoutLink.addEventListener('click', (event) => {
   if (localStorage.getItem('isLoggedIn') === 'true') {
       localStorage.removeItem('isLoggedIn');
       localStorage.removeItem('memberId')
-      window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/landing/index.html";
+      window.location.href = "/client/landing/index.html";
       }
   })

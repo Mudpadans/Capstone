@@ -305,9 +305,9 @@ form.addEventListener('submit', createEventHandler)
 window.addEventListener('load', (event) => {
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
   if (isLoggedIn) {
-      forumLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/forum/index.html";
+      forumLink.href = "/client/forum/index.html";
   } else {
-      forumLink.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/sign-up/index.html";
+      forumLink.href = "/client/sign-up/index.html";
   }
 })
 
@@ -316,7 +316,7 @@ logoutLink.addEventListener('click', (event) => {
   if (localStorage.getItem('isLoggedIn') === 'true') {
       localStorage.removeItem('isLoggedIn');
       localStorage.removeItem('memberId')
-      window.location.href = "/Volumes/GIGAFILES/Devmountain/Capstone/client/landing/index.html";
+      window.location.href = "/client/landing/index.html";
       }
   })
 
