@@ -14,4 +14,4 @@ Landing Page
 
 Signup Page
 
-<img src="" alt="signup-page"/>
+<img src="Screenshot 2023-06-27 at 15.08.00.png" alt="signup-page"/>
